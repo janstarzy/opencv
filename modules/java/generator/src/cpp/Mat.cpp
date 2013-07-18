@@ -5,8 +5,28 @@
 
 using namespace cv;
 
-extern "C" {
+static jint throwJavaException(JNIEnv *env, const std::exception &e, const char *method, const char *exception_type = "org/opencv/core/CvException");
+static jint throwJavaException(JNIEnv *env, const std::exception &e, const char *method, const char *exception_type) {
+  const char *exception_str = "std::exception";
+  if(dynamic_cast<const cv::Exception*>(&e)) exception_str = "cv::Exception";
+  LOGD("%s caught %s: %s", method, exception_str, e.what());
+  jclass je = env->FindClass(exception_type);
+  if(!je) je = env->FindClass("java/lang/Exception");
+  env->ThrowNew(je, e.what());
+  return 0;
+}
 
+static jint throwJavaException(JNIEnv *env, const char *method);
+static jint throwJavaException(JNIEnv *env, const char *method) {
+  LOGD("%s caught unknown exception (...)", method);
+  jclass je = env->FindClass("java/lang/Exception");
+  const std::string msg = std::string("Unknown exception in JNI code {") + method + "}";
+  env->ThrowNew(je, msg.c_str());
+  return 0;
+}
+
+extern "C" {
+  
 
 //
 //   MatXXX::MatXXX()
@@ -35,23 +55,17 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1Mat__III
 JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1Mat__III
   (JNIEnv* env, jclass, jint rows, jint cols, jint type)
 {
+    static const char method_name[] = "Mat::n_1Mat__III()";
     try {
-        LOGD("Mat::n_1Mat__III()");
+        LOGD(method_name);
 
         Mat* _retval_ = new Mat( rows, cols, type );
 
         return (jlong) _retval_;
-    } catch(cv::Exception e) {
-        LOGD("Mat::n_1Mat__III() caught cv::Exception: %s", e.what());
-        jclass je = env->FindClass("org/opencv/core/CvException");
-        if(!je) je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, e.what());
-        return 0;
+    } catch(const std::exception &e) {
+        return throwJavaException(env, e, method_name);
     } catch (...) {
-        LOGD("Mat::n_1Mat__III() caught unknown exception (...)");
-        jclass je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, "Unknown exception in JNI code {Mat::n_1Mat__III()}");
-        return 0;
+        return throwJavaException(env, method_name);
     }
 }
 
@@ -67,23 +81,17 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1Mat__DDI
 JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1Mat__DDI
   (JNIEnv* env, jclass, jdouble size_width, jdouble size_height, jint type)
 {
+    static const char method_name[] = "Mat::n_1Mat__DDI()";
     try {
-        LOGD("Mat::n_1Mat__DDI()");
+        LOGD(method_name);
         Size size((int)size_width, (int)size_height);
         Mat* _retval_ = new Mat( size, type );
 
         return (jlong) _retval_;
-    } catch(cv::Exception e) {
-        LOGD("Mat::n_1Mat__DDI() caught cv::Exception: %s", e.what());
-        jclass je = env->FindClass("org/opencv/core/CvException");
-        if(!je) je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, e.what());
-        return 0;
+    } catch(const std::exception &e) {
+        return throwJavaException(env, e, method_name);
     } catch (...) {
-        LOGD("Mat::n_1Mat__DDI() caught unknown exception (...)");
-        jclass je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, "Unknown exception in JNI code {Mat::n_1Mat__DDI()}");
-        return 0;
+        return throwJavaException(env, method_name);
     }
 }
 
@@ -100,23 +108,17 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1Mat__IIIDDDD
 JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1Mat__IIIDDDD
   (JNIEnv* env, jclass, jint rows, jint cols, jint type, jdouble s_val0, jdouble s_val1, jdouble s_val2, jdouble s_val3)
 {
+    static const char method_name[] = "Mat::n_1Mat__IIIDDDD()";
     try {
-        LOGD("Mat::n_1Mat__IIIDDDD()");
+        LOGD(method_name);
         Scalar s(s_val0, s_val1, s_val2, s_val3);
         Mat* _retval_ = new Mat( rows, cols, type, s );
 
         return (jlong) _retval_;
-    } catch(cv::Exception e) {
-        LOGD("Mat::n_1Mat__IIIDDDD() caught cv::Exception: %s", e.what());
-        jclass je = env->FindClass("org/opencv/core/CvException");
-        if(!je) je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, e.what());
-        return 0;
+    } catch(const std::exception &e) {
+        return throwJavaException(env, e, method_name);
     } catch (...) {
-        LOGD("Mat::n_1Mat__IIIDDDD() caught unknown exception (...)");
-        jclass je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, "Unknown exception in JNI code {Mat::n_1Mat__IIIDDDD()}");
-        return 0;
+        return throwJavaException(env, method_name);
     }
 }
 
@@ -132,24 +134,18 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1Mat__DDIDDDD
 JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1Mat__DDIDDDD
   (JNIEnv* env, jclass, jdouble size_width, jdouble size_height, jint type, jdouble s_val0, jdouble s_val1, jdouble s_val2, jdouble s_val3)
 {
+    static const char method_name[] = "Mat::n_1Mat__DDIDDDD()";
     try {
-        LOGD("Mat::n_1Mat__DDIDDDD()");
+        LOGD(method_name);
         Size size((int)size_width, (int)size_height);
         Scalar s(s_val0, s_val1, s_val2, s_val3);
         Mat* _retval_ = new Mat( size, type, s );
 
         return (jlong) _retval_;
-    } catch(cv::Exception e) {
-        LOGD("Mat::n_1Mat__DDIDDDD() caught cv::Exception: %s", e.what());
-        jclass je = env->FindClass("org/opencv/core/CvException");
-        if(!je) je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, e.what());
-        return 0;
+    } catch(const std::exception &e) {
+        return throwJavaException(env, e, method_name);
     } catch (...) {
-        LOGD("Mat::n_1Mat__DDIDDDD() caught unknown exception (...)");
-        jclass je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, "Unknown exception in JNI code {Mat::n_1Mat__DDIDDDD()}");
-        return 0;
+        return throwJavaException(env, method_name);
     }
 }
 
@@ -165,24 +161,18 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1Mat__JIIII
 JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1Mat__JIIII
   (JNIEnv* env, jclass, jlong m_nativeObj, jint rowRange_start, jint rowRange_end, jint colRange_start, jint colRange_end)
 {
+    static const char method_name[] = "Mat::n_1Mat__JIIII()";
     try {
-        LOGD("Mat::n_1Mat__JIIII()");
+        LOGD(method_name);
         Range rowRange(rowRange_start, rowRange_end);
         Range colRange(colRange_start, colRange_end);
         Mat* _retval_ = new Mat( (*(Mat*)m_nativeObj), rowRange, colRange );
 
         return (jlong) _retval_;
-    } catch(cv::Exception e) {
-        LOGD("Mat::n_1Mat__JIIII() caught cv::Exception: %s", e.what());
-        jclass je = env->FindClass("org/opencv/core/CvException");
-        if(!je) je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, e.what());
-        return 0;
+    } catch(const std::exception &e) {
+        return throwJavaException(env, e, method_name);
     } catch (...) {
-        LOGD("Mat::n_1Mat__JIIII() caught unknown exception (...)");
-        jclass je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, "Unknown exception in JNI code {Mat::n_1Mat__JIIII()}");
-        return 0;
+        return throwJavaException(env, method_name);
     }
 }
 
@@ -194,23 +184,17 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1Mat__JII
 JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1Mat__JII
   (JNIEnv* env, jclass, jlong m_nativeObj, jint rowRange_start, jint rowRange_end)
 {
+    static const char method_name[] = "Mat::n_1Mat__JII()";
     try {
-        LOGD("Mat::n_1Mat__JII()");
+        LOGD(method_name);
         Range rowRange(rowRange_start, rowRange_end);
         Mat* _retval_ = new Mat( (*(Mat*)m_nativeObj), rowRange );
 
         return (jlong) _retval_;
-    } catch(cv::Exception e) {
-        LOGD("Mat::n_1Mat__JII() caught cv::Exception: %s", e.what());
-        jclass je = env->FindClass("org/opencv/core/CvException");
-        if(!je) je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, e.what());
-        return 0;
+    } catch(const std::exception &e) {
+        return throwJavaException(env, e, method_name);
     } catch (...) {
-        LOGD("Mat::n_1Mat__JII() caught unknown exception (...)");
-        jclass je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, "Unknown exception in JNI code {Mat::n_1Mat__JII()}");
-        return 0;
+        return throwJavaException(env, method_name);
     }
 }
 
@@ -225,23 +209,17 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1adjustROI
 JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1adjustROI
   (JNIEnv* env, jclass, jlong self, jint dtop, jint dbottom, jint dleft, jint dright)
 {
+    static const char method_name[] = "Mat::n_1adjustROI()";
     try {
-        LOGD("Mat::n_1adjustROI()");
+        LOGD(method_name);
         Mat* me = (Mat*) self; //TODO: check for NULL
         Mat _retval_ = me->adjustROI( dtop, dbottom, dleft, dright );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
-        LOGD("Mat::n_1adjustROI() caught cv::Exception: %s", e.what());
-        jclass je = env->FindClass("org/opencv/core/CvException");
-        if(!je) je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, e.what());
-        return 0;
+    } catch(const std::exception &e) {
+        return throwJavaException(env, e, method_name);
     } catch (...) {
-        LOGD("Mat::n_1adjustROI() caught unknown exception (...)");
-        jclass je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, "Unknown exception in JNI code {Mat::n_1adjustROI()}");
-        return 0;
+        return throwJavaException(env, method_name);
     }
 }
 
@@ -257,23 +235,17 @@ JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1assignTo__JJI
 JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1assignTo__JJI
   (JNIEnv* env, jclass, jlong self, jlong m_nativeObj, jint type)
 {
+    static const char method_name[] = "Mat::n_1assignTo__JJI()";
     try {
-        LOGD("Mat::n_1assignTo__JJI()");
+        LOGD(method_name);
         Mat* me = (Mat*) self; //TODO: check for NULL
         me->assignTo( (*(Mat*)m_nativeObj), type );
 
         return;
-    } catch(cv::Exception e) {
-        LOGD("Mat::n_1assignTo__JJI() caught cv::Exception: %s", e.what());
-        jclass je = env->FindClass("org/opencv/core/CvException");
-        if(!je) je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, e.what());
-        return;
+    } catch(const std::exception &e) {
+        throwJavaException(env, e, method_name);
     } catch (...) {
-        LOGD("Mat::n_1assignTo__JJI() caught unknown exception (...)");
-        jclass je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, "Unknown exception in JNI code {Mat::n_1assignTo__JJI()}");
-        return;
+        throwJavaException(env, method_name);
     }
 }
 
@@ -284,23 +256,17 @@ JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1assignTo__JJ
 JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1assignTo__JJ
   (JNIEnv* env, jclass, jlong self, jlong m_nativeObj)
 {
+    static const char method_name[] = "Mat::n_1assignTo__JJ()";
     try {
-        LOGD("Mat::n_1assignTo__JJ()");
+        LOGD(method_name);
         Mat* me = (Mat*) self; //TODO: check for NULL
         me->assignTo( (*(Mat*)m_nativeObj) );
 
         return;
-    } catch(cv::Exception e) {
-        LOGD("Mat::n_1assignTo__JJ() caught cv::Exception: %s", e.what());
-        jclass je = env->FindClass("org/opencv/core/CvException");
-        if(!je) je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, e.what());
-        return;
+    } catch(const std::exception &e) {
+        throwJavaException(env, e, method_name);
     } catch (...) {
-        LOGD("Mat::n_1assignTo__JJ() caught unknown exception (...)");
-        jclass je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, "Unknown exception in JNI code {Mat::n_1assignTo__JJ()}");
-        return;
+        throwJavaException(env, method_name);
     }
 }
 
@@ -316,23 +282,17 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_n_1channels
 JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_n_1channels
   (JNIEnv* env, jclass, jlong self)
 {
+    static const char method_name[] = "Mat::n_1channels()";
     try {
-        LOGD("Mat::n_1channels()");
+        LOGD(method_name);
         Mat* me = (Mat*) self; //TODO: check for NULL
         int _retval_ = me->channels(  );
 
         return _retval_;
-    } catch(cv::Exception e) {
-        LOGD("Mat::n_1channels() caught cv::Exception: %s", e.what());
-        jclass je = env->FindClass("org/opencv/core/CvException");
-        if(!je) je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, e.what());
-        return 0;
+    } catch(const std::exception &e) {
+        return throwJavaException(env, e, method_name);
     } catch (...) {
-        LOGD("Mat::n_1channels() caught unknown exception (...)");
-        jclass je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, "Unknown exception in JNI code {Mat::n_1channels()}");
-        return 0;
+        return throwJavaException(env, method_name);
     }
 }
 
@@ -348,23 +308,17 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_n_1checkVector__JIIZ
 JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_n_1checkVector__JIIZ
   (JNIEnv* env, jclass, jlong self, jint elemChannels, jint depth, jboolean requireContinuous)
 {
+    static const char method_name[] = "Mat::n_1checkVector__JIIZ()";
     try {
-        LOGD("Mat::n_1checkVector__JIIZ()");
+        LOGD(method_name);
         Mat* me = (Mat*) self; //TODO: check for NULL
         int _retval_ = me->checkVector( elemChannels, depth, requireContinuous );
 
         return _retval_;
-    } catch(cv::Exception e) {
-        LOGD("Mat::n_1checkVector__JIIZ() caught cv::Exception: %s", e.what());
-        jclass je = env->FindClass("org/opencv/core/CvException");
-        if(!je) je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, e.what());
-        return 0;
+    } catch(const std::exception &e) {
+        return throwJavaException(env, e, method_name);
     } catch (...) {
-        LOGD("Mat::n_1checkVector__JIIZ() caught unknown exception (...)");
-        jclass je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, "Unknown exception in JNI code {Mat::n_1checkVector__JIIZ()}");
-        return 0;
+        return throwJavaException(env, method_name);
     }
 }
 
@@ -376,23 +330,17 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_n_1checkVector__JII
 JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_n_1checkVector__JII
   (JNIEnv* env, jclass, jlong self, jint elemChannels, jint depth)
 {
+    static const char method_name[] = "Mat::n_1checkVector__JII()";
     try {
-        LOGD("Mat::n_1checkVector__JII()");
+        LOGD(method_name);
         Mat* me = (Mat*) self; //TODO: check for NULL
         int _retval_ = me->checkVector( elemChannels, depth );
 
         return _retval_;
-    } catch(cv::Exception e) {
-        LOGD("Mat::n_1checkVector__JII() caught cv::Exception: %s", e.what());
-        jclass je = env->FindClass("org/opencv/core/CvException");
-        if(!je) je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, e.what());
-        return 0;
+    } catch(const std::exception &e) {
+        return throwJavaException(env, e, method_name);
     } catch (...) {
-        LOGD("Mat::n_1checkVector__JII() caught unknown exception (...)");
-        jclass je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, "Unknown exception in JNI code {Mat::n_1checkVector__JII()}");
-        return 0;
+        return throwJavaException(env, method_name);
     }
 }
 
@@ -404,23 +352,17 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_n_1checkVector__JI
 JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_n_1checkVector__JI
   (JNIEnv* env, jclass, jlong self, jint elemChannels)
 {
+    static const char method_name[] = "Mat::n_1checkVector__JI()";
     try {
-        LOGD("Mat::n_1checkVector__JI()");
+        LOGD(method_name);
         Mat* me = (Mat*) self; //TODO: check for NULL
         int _retval_ = me->checkVector( elemChannels );
 
         return _retval_;
-    } catch(cv::Exception e) {
-        LOGD("Mat::n_1checkVector__JI() caught cv::Exception: %s", e.what());
-        jclass je = env->FindClass("org/opencv/core/CvException");
-        if(!je) je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, e.what());
-        return 0;
+    } catch(const std::exception &e) {
+        return throwJavaException(env, e, method_name);
     } catch (...) {
-        LOGD("Mat::n_1checkVector__JI() caught unknown exception (...)");
-        jclass je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, "Unknown exception in JNI code {Mat::n_1checkVector__JI()}");
-        return 0;
+        return throwJavaException(env, method_name);
     }
 }
 
@@ -437,23 +379,17 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1clone
 JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1clone
   (JNIEnv* env, jclass, jlong self)
 {
+    static const char method_name[] = "Mat::n_1clone()";
     try {
-        LOGD("Mat::n_1clone()");
+        LOGD(method_name);
         Mat* me = (Mat*) self; //TODO: check for NULL
         Mat _retval_ = me->clone(  );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
-        LOGD("Mat::n_1clone() caught cv::Exception: %s", e.what());
-        jclass je = env->FindClass("org/opencv/core/CvException");
-        if(!je) je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, e.what());
-        return 0;
+    } catch(const std::exception &e) {
+        return throwJavaException(env, e, method_name);
     } catch (...) {
-        LOGD("Mat::n_1clone() caught unknown exception (...)");
-        jclass je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, "Unknown exception in JNI code {Mat::n_1clone()}");
-        return 0;
+        return throwJavaException(env, method_name);
     }
 }
 
@@ -469,23 +405,17 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1col
 JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1col
   (JNIEnv* env, jclass, jlong self, jint x)
 {
+    static const char method_name[] = "Mat::n_1col()";
     try {
-        LOGD("Mat::n_1col()");
+        LOGD(method_name);
         Mat* me = (Mat*) self; //TODO: check for NULL
         Mat _retval_ = me->col( x );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
-        LOGD("Mat::n_1col() caught cv::Exception: %s", e.what());
-        jclass je = env->FindClass("org/opencv/core/CvException");
-        if(!je) je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, e.what());
-        return 0;
+    } catch(const std::exception &e) {
+        return throwJavaException(env, e, method_name);
     } catch (...) {
-        LOGD("Mat::n_1col() caught unknown exception (...)");
-        jclass je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, "Unknown exception in JNI code {Mat::n_1col()}");
-        return 0;
+        return throwJavaException(env, method_name);
     }
 }
 
@@ -501,23 +431,17 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1colRange
 JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1colRange
   (JNIEnv* env, jclass, jlong self, jint startcol, jint endcol)
 {
+    static const char method_name[] = "Mat::n_1colRange()";
     try {
-        LOGD("Mat::n_1colRange()");
+        LOGD(method_name);
         Mat* me = (Mat*) self; //TODO: check for NULL
         Mat _retval_ = me->colRange( startcol, endcol );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
-        LOGD("Mat::n_1colRange() caught cv::Exception: %s", e.what());
-        jclass je = env->FindClass("org/opencv/core/CvException");
-        if(!je) je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, e.what());
-        return 0;
+    } catch(const std::exception &e) {
+        return throwJavaException(env, e, method_name);
     } catch (...) {
-        LOGD("Mat::n_1colRange() caught unknown exception (...)");
-        jclass je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, "Unknown exception in JNI code {Mat::n_1colRange()}");
-        return 0;
+        return throwJavaException(env, method_name);
     }
 }
 
@@ -533,23 +457,17 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_n_1cols
 JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_n_1cols
   (JNIEnv* env, jclass, jlong self)
 {
+    static const char method_name[] = "Mat::n_1cols()";
     try {
-        LOGD("Mat::n_1cols()");
+        LOGD(method_name);
         Mat* me = (Mat*) self; //TODO: check for NULL
         int _retval_ = me->cols;
 
         return _retval_;
-    } catch(cv::Exception e) {
-        LOGD("Mat::n_1cols() caught cv::Exception: %s", e.what());
-        jclass je = env->FindClass("org/opencv/core/CvException");
-        if(!je) je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, e.what());
-        return 0;
+    } catch(const std::exception &e) {
+        return throwJavaException(env, e, method_name);
     } catch (...) {
-        LOGD("Mat::n_1cols() caught unknown exception (...)");
-        jclass je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, "Unknown exception in JNI code {Mat::n_1cols()}");
-        return 0;
+        return throwJavaException(env, method_name);
     }
 }
 
@@ -565,24 +483,18 @@ JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1convertTo__JJIDD
 JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1convertTo__JJIDD
   (JNIEnv* env, jclass, jlong self, jlong m_nativeObj, jint rtype, jdouble alpha, jdouble beta)
 {
+    static const char method_name[] = "Mat::n_1convertTo__JJIDD()";
     try {
-        LOGD("Mat::n_1convertTo__JJIDD()");
+        LOGD(method_name);
         Mat* me = (Mat*) self; //TODO: check for NULL
         Mat& m = *((Mat*)m_nativeObj);
         me->convertTo( m, rtype, alpha, beta );
 
         return;
-    } catch(cv::Exception e) {
-        LOGD("Mat::n_1convertTo__JJIDD() caught cv::Exception: %s", e.what());
-        jclass je = env->FindClass("org/opencv/core/CvException");
-        if(!je) je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, e.what());
-        return;
+    } catch(const std::exception &e) {
+        throwJavaException(env, e, method_name);
     } catch (...) {
-        LOGD("Mat::n_1convertTo__JJIDD() caught unknown exception (...)");
-        jclass je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, "Unknown exception in JNI code {Mat::n_1convertTo__JJIDD()}");
-        return;
+        throwJavaException(env, method_name);
     }
 }
 
@@ -593,24 +505,18 @@ JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1convertTo__JJID
 JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1convertTo__JJID
   (JNIEnv* env, jclass, jlong self, jlong m_nativeObj, jint rtype, jdouble alpha)
 {
+    static const char method_name[] = "Mat::n_1convertTo__JJID()";
     try {
-        LOGD("Mat::n_1convertTo__JJID()");
+        LOGD(method_name);
         Mat* me = (Mat*) self; //TODO: check for NULL
         Mat& m = *((Mat*)m_nativeObj);
         me->convertTo( m, rtype, alpha );
 
         return;
-    } catch(cv::Exception e) {
-        LOGD("Mat::n_1convertTo__JJID() caught cv::Exception: %s", e.what());
-        jclass je = env->FindClass("org/opencv/core/CvException");
-        if(!je) je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, e.what());
-        return;
+    } catch(const std::exception &e) {
+        throwJavaException(env, e, method_name);
     } catch (...) {
-        LOGD("Mat::n_1convertTo__JJID() caught unknown exception (...)");
-        jclass je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, "Unknown exception in JNI code {Mat::n_1convertTo__JJID()}");
-        return;
+        throwJavaException(env, method_name);
     }
 }
 
@@ -621,24 +527,18 @@ JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1convertTo__JJI
 JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1convertTo__JJI
   (JNIEnv* env, jclass, jlong self, jlong m_nativeObj, jint rtype)
 {
+    static const char method_name[] = "Mat::n_1convertTo__JJI()";
     try {
-        LOGD("Mat::n_1convertTo__JJI()");
+        LOGD(method_name);
         Mat* me = (Mat*) self; //TODO: check for NULL
         Mat& m = *((Mat*)m_nativeObj);
         me->convertTo( m, rtype );
 
         return;
-    } catch(cv::Exception e) {
-        LOGD("Mat::n_1convertTo__JJI() caught cv::Exception: %s", e.what());
-        jclass je = env->FindClass("org/opencv/core/CvException");
-        if(!je) je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, e.what());
-        return;
+    } catch(const std::exception &e) {
+        throwJavaException(env, e, method_name);
     } catch (...) {
-        LOGD("Mat::n_1convertTo__JJI() caught unknown exception (...)");
-        jclass je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, "Unknown exception in JNI code {Mat::n_1convertTo__JJI()}");
-        return;
+        throwJavaException(env, method_name);
     }
 }
 
@@ -654,24 +554,18 @@ JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1copyTo__JJ
 JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1copyTo__JJ
   (JNIEnv* env, jclass, jlong self, jlong m_nativeObj)
 {
+    static const char method_name[] = "Mat::n_1copyTo__JJ()";
     try {
-        LOGD("Mat::n_1copyTo__JJ()");
+        LOGD(method_name);
         Mat* me = (Mat*) self; //TODO: check for NULL
         Mat& m = *((Mat*)m_nativeObj);
         me->copyTo( m );
 
         return;
-    } catch(cv::Exception e) {
-        LOGD("Mat::n_1copyTo__JJ() caught cv::Exception: %s", e.what());
-        jclass je = env->FindClass("org/opencv/core/CvException");
-        if(!je) je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, e.what());
-        return;
+    } catch(const std::exception &e) {
+        throwJavaException(env, e, method_name);
     } catch (...) {
-        LOGD("Mat::n_1copyTo__JJ() caught unknown exception (...)");
-        jclass je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, "Unknown exception in JNI code {Mat::n_1copyTo__JJ()}");
-        return;
+        throwJavaException(env, method_name);
     }
 }
 
@@ -687,25 +581,19 @@ JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1copyTo__JJJ
 JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1copyTo__JJJ
   (JNIEnv* env, jclass, jlong self, jlong m_nativeObj, jlong mask_nativeObj)
 {
+    static const char method_name[] = "Mat::n_1copyTo__JJJ()";
     try {
-        LOGD("Mat::n_1copyTo__JJJ()");
+        LOGD(method_name);
         Mat* me = (Mat*) self; //TODO: check for NULL
         Mat& m = *((Mat*)m_nativeObj);
         Mat& mask = *((Mat*)mask_nativeObj);
         me->copyTo( m, mask );
 
         return;
-    } catch(cv::Exception e) {
-        LOGD("Mat::n_1copyTo__JJJ() caught cv::Exception: %s", e.what());
-        jclass je = env->FindClass("org/opencv/core/CvException");
-        if(!je) je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, e.what());
-        return;
+    } catch(const std::exception &e) {
+        throwJavaException(env, e, method_name);
     } catch (...) {
-        LOGD("Mat::n_1copyTo__JJJ() caught unknown exception (...)");
-        jclass je = env->FindClass("java/lang/Exception");
-        env->ThrowNew(je, "Unknown exception in JNI code {Mat::n_1copyTo__JJJ()}");
-        return;
+        throwJavaException(env, method_name);
     }
 }
 
@@ -727,7 +615,7 @@ JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1create__JIII
         me->create( rows, cols, type );
 
         return;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1create__JIII() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -760,7 +648,7 @@ JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1create__JDDI
         me->create( size, type );
 
         return;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1create__JDDI() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -793,7 +681,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1cross
         Mat _retval_ = me->cross( m );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1cross() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -842,7 +730,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_n_1depth
         int _retval_ = me->depth(  );
 
         return _retval_;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1depth() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -874,7 +762,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1diag__JI
         Mat _retval_ = me->diag( d );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1diag__JI() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -907,7 +795,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1diag__J
         Mat _retval_ = Mat::diag( (*(Mat*)d_nativeObj) );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1diag__J() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -940,7 +828,7 @@ JNIEXPORT jdouble JNICALL Java_org_opencv_core_Mat_n_1dot
         double _retval_ = me->dot( m );
 
         return _retval_;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1dot() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -972,7 +860,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1elemSize
         size_t _retval_ = me->elemSize(  );
 
         return _retval_;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1elemSize() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1004,7 +892,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1elemSize1
         size_t _retval_ = me->elemSize1(  );
 
         return _retval_;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1elemSize1() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1036,7 +924,7 @@ JNIEXPORT jboolean JNICALL Java_org_opencv_core_Mat_n_1empty
         bool _retval_ = me->empty(  );
 
         return _retval_;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1empty() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1068,7 +956,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1eye__III
         Mat _retval_ = Mat::eye( rows, cols, type );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1eye__III() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1100,7 +988,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1eye__DDI
         Mat _retval_ = Mat::eye( size, type );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1eye__DDI() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1132,7 +1020,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1inv__JI
         Mat _retval_ = me->inv( method );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1inv__JI() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1159,7 +1047,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1inv__J
         Mat _retval_ = me->inv(  );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1inv__J() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1191,7 +1079,7 @@ JNIEXPORT jboolean JNICALL Java_org_opencv_core_Mat_n_1isContinuous
         bool _retval_ = me->isContinuous(  );
 
         return _retval_;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1isContinuous() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1223,7 +1111,7 @@ JNIEXPORT jboolean JNICALL Java_org_opencv_core_Mat_n_1isSubmatrix
         bool _retval_ = me->isSubmatrix(  );
 
         return _retval_;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1isSubmatrix() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1257,7 +1145,7 @@ JNIEXPORT void JNICALL Java_org_opencv_core_Mat_locateROI_10
         me->locateROI( wholeSize, ofs );
         jdouble tmp_wholeSize[2] = {wholeSize.width, wholeSize.height}; env->SetDoubleArrayRegion(wholeSize_out, 0, 2, tmp_wholeSize);  jdouble tmp_ofs[2] = {ofs.x, ofs.y}; env->SetDoubleArrayRegion(ofs_out, 0, 2, tmp_ofs);
         return;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::locateROI_10() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1290,7 +1178,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1mul__JJD
         Mat _retval_ = me->mul( m, scale );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1mul__JJD() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1319,7 +1207,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1mul__JJ
         Mat _retval_ = me->mul( m );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1mul__JJ() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1351,7 +1239,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1ones__III
         Mat _retval_ = Mat::ones( rows, cols, type );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1ones__III() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1383,7 +1271,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1ones__DDI
         Mat _retval_ = Mat::ones( size, type );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1ones__DDI() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1415,7 +1303,7 @@ JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1push_1back
         me->push_back( (*(Mat*)m_nativeObj) );
 
         return;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1push_1back() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1447,7 +1335,7 @@ JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1release
         me->release(  );
 
         return;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1release() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1479,7 +1367,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1reshape__JII
         Mat _retval_ = me->reshape( cn, rows );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1reshape__JII() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1507,7 +1395,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1reshape__JI
         Mat _retval_ = me->reshape( cn );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1reshape__JI() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1539,7 +1427,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1row
         Mat _retval_ = me->row( y );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1row() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1571,7 +1459,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1rowRange
         Mat _retval_ = me->rowRange( startrow, endrow );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1rowRange() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1603,7 +1491,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_n_1rows
         int _retval_ = me->rows;
 
         return _retval_;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1rows() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1636,7 +1524,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1setTo__JDDDD
         Mat _retval_ = me->operator =( s );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1setTo__JDDDD() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1670,7 +1558,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1setTo__JDDDDJ
         Mat _retval_ = me->setTo( s, mask );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1setTo__JDDDDJ() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1704,7 +1592,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1setTo__JJJ
         Mat _retval_ = me->setTo( value, mask );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1setTo__JJJ() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1733,7 +1621,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1setTo__JJ
         Mat _retval_ = me->setTo( value );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1setTo__JJ() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1765,7 +1653,7 @@ JNIEXPORT jdoubleArray JNICALL Java_org_opencv_core_Mat_n_1size
         Size _retval_ = me->size(  );
         jdoubleArray _da_retval_ = env->NewDoubleArray(2);  jdouble _tmp_retval_[2] = {_retval_.width, _retval_.height}; env->SetDoubleArrayRegion(_da_retval_, 0, 2, _tmp_retval_);
         return _da_retval_;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1size() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1797,7 +1685,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1step1__JI
         size_t _retval_ = me->step1( i );
 
         return _retval_;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1step1__JI() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1825,7 +1713,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1step1__J
         size_t _retval_ = me->step1(  );
 
         return _retval_;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1step1__J() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1857,7 +1745,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1submat_1rr
         Mat _retval_ = me->operator()( rowRange, colRange );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1submat_1rr() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1890,7 +1778,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1submat
         Mat _retval_ = me->operator()( roi );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1submat() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1922,7 +1810,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1t
         Mat _retval_ = me->t(  );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1t() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1954,7 +1842,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1total
         size_t _retval_ = me->total(  );
 
         return _retval_;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1total() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -1986,7 +1874,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_n_1type
         int _retval_ = me->type(  );
 
         return _retval_;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1type() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -2018,7 +1906,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1zeros__III
         Mat _retval_ = Mat::zeros( rows, cols, type );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1zeros__III() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -2050,7 +1938,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1zeros__DDI
         Mat _retval_ = Mat::zeros( size, type );
 
         return (jlong) new Mat(_retval_);
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::n_1zeros__DDI() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -2130,7 +2018,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_nPutD
 
         env->ReleasePrimitiveArrayCritical(vals, values, 0);
         return res;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::nPutD() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -2197,7 +2085,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_nPutB
         int res = mat_put<char>(me, row, col, count, values);
         env->ReleasePrimitiveArrayCritical(vals, values, 0);
         return res;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::nPutB() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -2228,7 +2116,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_nPutS
         int res = mat_put<short>(me, row, col, count, values);
         env->ReleasePrimitiveArrayCritical(vals, values, 0);
         return res;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::nPutS() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -2259,7 +2147,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_nPutI
         int res = mat_put<int>(me, row, col, count, values);
         env->ReleasePrimitiveArrayCritical(vals, values, 0);
         return res;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::nPutI() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -2290,7 +2178,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_nPutF
         int res = mat_put<float>(me, row, col, count, values);
         env->ReleasePrimitiveArrayCritical(vals, values, 0);
         return res;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::nPutF() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -2356,7 +2244,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_nGetB
         int res = mat_get<char>(me, row, col, count, values);
         env->ReleasePrimitiveArrayCritical(vals, values, 0);
         return res;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::nGetB() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -2387,7 +2275,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_nGetS
         int res = mat_get<short>(me, row, col, count, values);
         env->ReleasePrimitiveArrayCritical(vals, values, 0);
         return res;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::nGetS() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -2418,7 +2306,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_nGetI
         int res = mat_get<int>(me, row, col, count, values);
         env->ReleasePrimitiveArrayCritical(vals, values, 0);
         return res;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::nGetI() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -2449,7 +2337,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_nGetF
         int res = mat_get<float>(me, row, col, count, values);
         env->ReleasePrimitiveArrayCritical(vals, values, 0);
         return res;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::nGetF() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -2480,7 +2368,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_nGetD
         int res = mat_get<double>(me, row, col, count, values);
         env->ReleasePrimitiveArrayCritical(vals, values, 0);
         return res;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::nGetD() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -2522,7 +2410,7 @@ JNIEXPORT jdoubleArray JNICALL Java_org_opencv_core_Mat_nGet
             env->SetDoubleArrayRegion(res, 0, me->channels(), buff);
         }
         return res;
-    } catch(cv::Exception e) {
+    } catch(const std::exception &e) {
         LOGD("Mat::nGet() caught cv::Exception: %s", e.what());
         jclass je = env->FindClass("org/opencv/core/CvException");
         if(!je) je = env->FindClass("java/lang/Exception");
@@ -2549,7 +2437,7 @@ JNIEXPORT jstring JNICALL Java_org_opencv_core_Mat_nDump
 
             s << *me;
             return env->NewStringUTF(s.str().c_str());
-        } catch(cv::Exception e) {
+        } catch(const std::exception &e) {
             LOGE("Mat::nDump() caught cv::Exception: %s", e.what());
             jclass je = env->FindClass("org/opencv/core/CvException");
             if(!je) je = env->FindClass("java/lang/Exception");

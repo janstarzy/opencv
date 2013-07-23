@@ -634,8 +634,10 @@ JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1convertTo__JJI
         return;
     } catch(const std::exception &e) {
         throwJavaExceptionD(env, e, method_name);
+        return;
     } catch (...) {
         throwJavaExceptionD(env, method_name);
+        return;
     }
 }
 
@@ -661,8 +663,10 @@ JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1copyTo__JJ
         return;
     } catch(const std::exception &e) {
         throwJavaExceptionD(env, e, method_name);
+        return;
     } catch (...) {
         throwJavaExceptionD(env, method_name);
+        return;
     }
 }
 
@@ -689,8 +693,10 @@ JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1copyTo__JJJ
         return;
     } catch(const std::exception &e) {
         throwJavaExceptionD(env, e, method_name);
+        return;
     } catch (...) {
         throwJavaExceptionD(env, method_name);
+        return;
     }
 }
 

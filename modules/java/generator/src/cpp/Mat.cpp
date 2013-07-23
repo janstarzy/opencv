@@ -2355,24 +2355,5 @@ JNIEXPORT jstring JNICALL Java_org_opencv_core_Mat_nDump
 }
 
 
-JNIEXPORT void JNICALL Java_Test_test1(JNIEnv *, jclass);
-JNIEXPORT void JNICALL Java_Test_test1(JNIEnv *env, jclass) {
-  throwJavaException(env);
-  printf("unkown exception\n");
-}
-
-JNIEXPORT void JNICALL Java_Test_test2(JNIEnv *, jclass);
-JNIEXPORT void JNICALL Java_Test_test2(JNIEnv *env, jclass) {
-  std::invalid_argument e("test std::exception");
-  const char *type = throwJavaException(env, e);
-  printf("exception: %s\n", type);
-}
-
-JNIEXPORT void JNICALL Java_Test_test3(JNIEnv *, jclass);
-JNIEXPORT void JNICALL Java_Test_test3(JNIEnv *env, jclass) {
-  cv::Exception e(0, "test cv::Exception", "test3", __FILE__, __LINE__);
-  const char *type = throwJavaException(env, e);
-  printf("exception: %s\n", type);
-}
 
 } // extern "C"

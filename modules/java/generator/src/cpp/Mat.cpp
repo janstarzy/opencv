@@ -64,6 +64,12 @@ static void throwJavaExceptionE(JNIEnv *env, const char *method) {
   (void)method; // avoid "unused" warning
 }
 
+/// cast jlong to Mat*, throw for null
+static Mat* getMat(jlong self) {
+  if(!self) throw std::invalid_argument("null matrix");
+  return (Mat*)self;
+}
+
 extern "C" {
   
 
@@ -130,34 +136,6 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1Mat__DDI
 
         return (jlong) _retval_;
     } catch(const std::exception &e) {
-        throwJavaExceptionD(env, e, method_name);
-        return 0;
-    } catch (...) {
-        throwJavaExceptionD(env, method_name);
-        return 0;
-    }
-}
-
-
-
-//
-//  int Mat::dims()
-//
-  
-JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_n_1dims
-  (JNIEnv* env, jclass, jlong self);
-
-JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_n_1dims
-  (JNIEnv* env, jclass, jlong self)
-{
-    static const char method_name[] = "Mat::n_1dims()";
-    try {
-        LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
-        int _retval_ = me->dims;
-
-        return _retval_;
-    } catch(cv::Exception e) {
         throwJavaExceptionD(env, e, method_name);
         return 0;
     } catch (...) {
@@ -291,7 +269,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1adjustROI
     static const char method_name[] = "Mat::n_1adjustROI()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         Mat _retval_ = me->adjustROI( dtop, dbottom, dleft, dright );
 
         return (jlong) new Mat(_retval_);
@@ -319,8 +297,9 @@ JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1assignTo__JJI
     static const char method_name[] = "Mat::n_1assignTo__JJI()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
-        me->assignTo( (*(Mat*)m_nativeObj), type );
+        Mat* me = getMat(self);
+        Mat *m = getMat(m_nativeObj);
+        me->assignTo( *m, type );
 
         return;
     } catch(const std::exception &e) {
@@ -342,8 +321,9 @@ JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1assignTo__JJ
     static const char method_name[] = "Mat::n_1assignTo__JJ()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
-        me->assignTo( (*(Mat*)m_nativeObj) );
+        Mat* me = getMat(self);
+        Mat *m = getMat(m_nativeObj);
+        me->assignTo( *m );
 
         return;
     } catch(const std::exception &e) {
@@ -370,7 +350,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_n_1channels
     static const char method_name[] = "Mat::n_1channels()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         int _retval_ = me->channels(  );
 
         return _retval_;
@@ -398,7 +378,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_n_1checkVector__JIIZ
     static const char method_name[] = "Mat::n_1checkVector__JIIZ()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         int _retval_ = me->checkVector( elemChannels, depth, requireContinuous );
 
         return _retval_;
@@ -422,7 +402,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_n_1checkVector__JII
     static const char method_name[] = "Mat::n_1checkVector__JII()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         int _retval_ = me->checkVector( elemChannels, depth );
 
         return _retval_;
@@ -446,7 +426,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_n_1checkVector__JI
     static const char method_name[] = "Mat::n_1checkVector__JI()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         int _retval_ = me->checkVector( elemChannels );
 
         return _retval_;
@@ -475,7 +455,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1clone
     static const char method_name[] = "Mat::n_1clone()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         Mat _retval_ = me->clone(  );
 
         return (jlong) new Mat(_retval_);
@@ -503,7 +483,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1col
     static const char method_name[] = "Mat::n_1col()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         Mat _retval_ = me->col( x );
 
         return (jlong) new Mat(_retval_);
@@ -531,11 +511,39 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1colRange
     static const char method_name[] = "Mat::n_1colRange()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         Mat _retval_ = me->colRange( startcol, endcol );
 
         return (jlong) new Mat(_retval_);
     } catch(const std::exception &e) {
+        throwJavaExceptionD(env, e, method_name);
+        return 0;
+    } catch (...) {
+        throwJavaExceptionD(env, method_name);
+        return 0;
+    }
+}
+
+
+
+//
+//  int Mat::dims()
+//
+  
+JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_n_1dims
+  (JNIEnv* env, jclass, jlong self);
+
+JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_n_1dims
+  (JNIEnv* env, jclass, jlong self)
+{
+    static const char method_name[] = "Mat::n_1dims()";
+    try {
+        LOGD(method_name);
+        Mat* me = getMat(self);
+        int _retval_ = me->dims;
+
+        return _retval_;
+    } catch(cv::Exception e) {
         throwJavaExceptionD(env, e, method_name);
         return 0;
     } catch (...) {
@@ -559,7 +567,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_n_1cols
     static const char method_name[] = "Mat::n_1cols()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         int _retval_ = me->cols;
 
         return _retval_;
@@ -587,9 +595,9 @@ JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1convertTo__JJIDD
     static const char method_name[] = "Mat::n_1convertTo__JJIDD()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
-        Mat& m = *((Mat*)m_nativeObj);
-        me->convertTo( m, rtype, alpha, beta );
+        Mat* me = getMat(self);
+        Mat* m = getMat(m_nativeObj);
+        me->convertTo( *m, rtype, alpha, beta );
 
         return;
     } catch(const std::exception &e) {
@@ -611,9 +619,9 @@ JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1convertTo__JJID
     static const char method_name[] = "Mat::n_1convertTo__JJID()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
-        Mat& m = *((Mat*)m_nativeObj);
-        me->convertTo( m, rtype, alpha );
+        Mat* me = getMat(self);
+        Mat* m = getMat(m_nativeObj);
+        me->convertTo( *m, rtype, alpha );
 
         return;
     } catch(const std::exception &e) {
@@ -635,9 +643,9 @@ JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1convertTo__JJI
     static const char method_name[] = "Mat::n_1convertTo__JJI()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
-        Mat& m = *((Mat*)m_nativeObj);
-        me->convertTo( m, rtype );
+        Mat* me = getMat(self);
+        Mat* m = getMat(m_nativeObj);
+        me->convertTo( *m, rtype );
 
         return;
     } catch(const std::exception &e) {
@@ -664,9 +672,9 @@ JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1copyTo__JJ
     static const char method_name[] = "Mat::n_1copyTo__JJ()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
-        Mat& m = *((Mat*)m_nativeObj);
-        me->copyTo( m );
+        Mat* me = getMat(self);
+        Mat* m = getMat(m_nativeObj);
+        me->copyTo( *m );
 
         return;
     } catch(const std::exception &e) {
@@ -693,10 +701,10 @@ JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1copyTo__JJJ
     static const char method_name[] = "Mat::n_1copyTo__JJJ()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
-        Mat& m = *((Mat*)m_nativeObj);
-        Mat& mask = *((Mat*)mask_nativeObj);
-        me->copyTo( m, mask );
+        Mat* me = getMat(self);
+        Mat* m = getMat(m_nativeObj);
+        Mat* mask = getMat(mask_nativeObj);
+        me->copyTo( *m, *mask );
 
         return;
     } catch(const std::exception &e) {
@@ -723,7 +731,7 @@ JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1create__JIII
     static const char method_name[] = "Mat::n_1create__JIII()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         me->create( rows, cols, type );
 
         return;
@@ -751,7 +759,7 @@ JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1create__JDDI
     static const char method_name[] = "Mat::n_1create__JDDI()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         Size size((int)size_width, (int)size_height);
         me->create( size, type );
 
@@ -780,9 +788,9 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1cross
     static const char method_name[] = "Mat::n_1cross()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
-        Mat& m = *((Mat*)m_nativeObj);
-        Mat _retval_ = me->cross( m );
+        Mat* me = getMat(self);
+        Mat* m = getMat(m_nativeObj);
+        Mat _retval_ = me->cross( *m );
 
         return (jlong) new Mat(_retval_);
     } catch(const std::exception &e) {
@@ -804,11 +812,20 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1dataAddr
   (JNIEnv*, jclass, jlong self);
 
 JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1dataAddr
-  (JNIEnv*, jclass, jlong self)
+  (JNIEnv* env, jclass, jlong self)
 {
-    LOGD("Mat::n_1dataAddr()");
-    Mat* me = (Mat*) self; //TODO: check for NULL
-    return (jlong) me->data;
+    static const char method_name[] = "Mat::n_1dataAddr()";
+    try {
+        LOGD(method_name);
+        Mat* me = getMat(self);
+        return (jlong) me->data;
+    } catch(const std::exception &e) {
+        throwJavaExceptionD(env, e, method_name);
+        return 0;
+    } catch (...) {
+        throwJavaExceptionD(env, method_name);
+        return 0;
+    }
 }
 
 
@@ -826,7 +843,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_n_1depth
     static const char method_name[] = "Mat::n_1depth()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         int _retval_ = me->depth(  );
 
         return _retval_;
@@ -854,7 +871,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1diag__JI
     static const char method_name[] = "Mat::n_1diag__JI()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         Mat _retval_ = me->diag( d );
 
         return (jlong) new Mat(_retval_);
@@ -911,9 +928,9 @@ JNIEXPORT jdouble JNICALL Java_org_opencv_core_Mat_n_1dot
     static const char method_name[] = "Mat::n_1dot()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
-        Mat& m = *((Mat*)m_nativeObj);
-        double _retval_ = me->dot( m );
+        Mat* me = getMat(self);
+        Mat* m = getMat(m_nativeObj);
+        double _retval_ = me->dot( *m );
 
         return _retval_;
     } catch(const std::exception &e) {
@@ -940,7 +957,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1elemSize
     static const char method_name[] = "Mat::n_1elemSize()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         size_t _retval_ = me->elemSize(  );
 
         return _retval_;
@@ -968,7 +985,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1elemSize1
     static const char method_name[] = "Mat::n_1elemSize1()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         size_t _retval_ = me->elemSize1(  );
 
         return _retval_;
@@ -996,7 +1013,7 @@ JNIEXPORT jboolean JNICALL Java_org_opencv_core_Mat_n_1empty
     static const char method_name[] = "Mat::n_1empty()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         bool _retval_ = me->empty(  );
 
         return _retval_;
@@ -1080,7 +1097,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1inv__JI
     static const char method_name[] = "Mat::n_1inv__JI()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         Mat _retval_ = me->inv( method );
 
         return (jlong) new Mat(_retval_);
@@ -1103,7 +1120,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1inv__J
     static const char method_name[] = "Mat::n_1inv__J()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         Mat _retval_ = me->inv(  );
 
         return (jlong) new Mat(_retval_);
@@ -1131,7 +1148,7 @@ JNIEXPORT jboolean JNICALL Java_org_opencv_core_Mat_n_1isContinuous
     static const char method_name[] = "Mat::n_1isContinuous()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         bool _retval_ = me->isContinuous(  );
 
         return _retval_;
@@ -1159,7 +1176,7 @@ JNIEXPORT jboolean JNICALL Java_org_opencv_core_Mat_n_1isSubmatrix
     static const char method_name[] = "Mat::n_1isSubmatrix()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         bool _retval_ = me->isSubmatrix(  );
 
         return _retval_;
@@ -1187,7 +1204,7 @@ JNIEXPORT void JNICALL Java_org_opencv_core_Mat_locateROI_10
     static const char method_name[] = "core::locateROI_10()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         Size wholeSize;
         Point ofs;
         me->locateROI( wholeSize, ofs );
@@ -1217,9 +1234,9 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1mul__JJD
     static const char method_name[] = "Mat::n_1mul__JJD()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
-        Mat& m = *((Mat*)m_nativeObj);
-        Mat _retval_ = me->mul( m, scale );
+        Mat* me = getMat(self);
+        Mat* m = getMat(m_nativeObj);
+        Mat _retval_ = me->mul( *m, scale );
 
         return (jlong) new Mat(_retval_);
     } catch(const std::exception &e) {
@@ -1242,9 +1259,9 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1mul__JJ
     static const char method_name[] = "Mat::n_1mul__JJ()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
-        Mat& m = *((Mat*)m_nativeObj);
-        Mat _retval_ = me->mul( m );
+        Mat* me = getMat(self);
+        Mat* m = getMat(m_nativeObj);
+        Mat _retval_ = me->mul( *m );
 
         return (jlong) new Mat(_retval_);
     } catch(const std::exception &e) {
@@ -1327,8 +1344,9 @@ JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1push_1back
     static const char method_name[] = "Mat::n_1push_1back()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
-        me->push_back( (*(Mat*)m_nativeObj) );
+        Mat* me = getMat(self);
+        Mat *m = getMat(m_nativeObj);
+        me->push_back( *m );
 
         return;
     } catch(const std::exception &e) {
@@ -1355,7 +1373,7 @@ JNIEXPORT void JNICALL Java_org_opencv_core_Mat_n_1release
     static const char method_name[] = "Mat::n_1release()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         me->release(  );
 
         return;
@@ -1383,7 +1401,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1reshape__JII
     static const char method_name[] = "Mat::n_1reshape__JII()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         Mat _retval_ = me->reshape( cn, rows );
 
         return (jlong) new Mat(_retval_);
@@ -1407,7 +1425,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1reshape__JI
     static const char method_name[] = "Mat::n_1reshape__JI()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         Mat _retval_ = me->reshape( cn );
 
         return (jlong) new Mat(_retval_);
@@ -1435,7 +1453,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1row
     static const char method_name[] = "Mat::n_1row()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         Mat _retval_ = me->row( y );
 
         return (jlong) new Mat(_retval_);
@@ -1463,7 +1481,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1rowRange
     static const char method_name[] = "Mat::n_1rowRange()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         Mat _retval_ = me->rowRange( startrow, endrow );
 
         return (jlong) new Mat(_retval_);
@@ -1491,7 +1509,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_n_1rows
     static const char method_name[] = "Mat::n_1rows()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         int _retval_ = me->rows;
 
         return _retval_;
@@ -1519,7 +1537,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1setTo__JDDDD
     static const char method_name[] = "Mat::n_1setTo__JDDDD()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         Scalar s(s_val0, s_val1, s_val2, s_val3);
         Mat _retval_ = me->operator =( s );
 
@@ -1548,10 +1566,10 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1setTo__JDDDDJ
     static const char method_name[] = "Mat::n_1setTo__JDDDDJ()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         Scalar s(s_val0, s_val1, s_val2, s_val3);
-        Mat& mask = *((Mat*)mask_nativeObj);
-        Mat _retval_ = me->setTo( s, mask );
+        Mat* mask = getMat(mask_nativeObj);
+        Mat _retval_ = me->setTo( s, *mask );
 
         return (jlong) new Mat(_retval_);
     } catch(const std::exception &e) {
@@ -1578,10 +1596,10 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1setTo__JJJ
     static const char method_name[] = "Mat::n_1setTo__JJJ()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
-        Mat& value = *((Mat*)value_nativeObj);
-        Mat& mask = *((Mat*)mask_nativeObj);
-        Mat _retval_ = me->setTo( value, mask );
+        Mat* me = getMat(self);
+        Mat* value = getMat(value_nativeObj);
+        Mat* mask = getMat(mask_nativeObj);
+        Mat _retval_ = me->setTo( *value, *mask );
 
         return (jlong) new Mat(_retval_);
     } catch(const std::exception &e) {
@@ -1604,9 +1622,9 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1setTo__JJ
     static const char method_name[] = "Mat::n_1setTo__JJ()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
-        Mat& value = *((Mat*)value_nativeObj);
-        Mat _retval_ = me->setTo( value );
+        Mat* me = getMat(self);
+        Mat* value = getMat(value_nativeObj);
+        Mat _retval_ = me->setTo( *value );
 
         return (jlong) new Mat(_retval_);
     } catch(const std::exception &e) {
@@ -1633,7 +1651,7 @@ JNIEXPORT jdoubleArray JNICALL Java_org_opencv_core_Mat_n_1size
     static const char method_name[] = "Mat::n_1size()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         Size _retval_ = me->size(  );
         jdoubleArray _da_retval_ = env->NewDoubleArray(2);  jdouble _tmp_retval_[2] = {_retval_.width, _retval_.height}; env->SetDoubleArrayRegion(_da_retval_, 0, 2, _tmp_retval_);
         return _da_retval_;
@@ -1661,7 +1679,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1step1__JI
     static const char method_name[] = "Mat::n_1step1__JI()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         size_t _retval_ = me->step1( i );
 
         return _retval_;
@@ -1685,7 +1703,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1step1__J
     static const char method_name[] = "Mat::n_1step1__J()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         size_t _retval_ = me->step1(  );
 
         return _retval_;
@@ -1711,7 +1729,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1submat_1rr
     static const char method_name[] = "Mat::n_1submat_1rr()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         Range rowRange(rowRange_start, rowRange_end);
         Range colRange(colRange_start, colRange_end);
         Mat _retval_ = me->operator()( rowRange, colRange );
@@ -1741,7 +1759,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1submat
     static const char method_name[] = "Mat::n_1submat()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         Rect roi(roi_x, roi_y, roi_width, roi_height);
         Mat _retval_ = me->operator()( roi );
 
@@ -1770,7 +1788,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1t
     static const char method_name[] = "Mat::n_1t()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         Mat _retval_ = me->t(  );
 
         return (jlong) new Mat(_retval_);
@@ -1798,7 +1816,7 @@ JNIEXPORT jlong JNICALL Java_org_opencv_core_Mat_n_1total
     static const char method_name[] = "Mat::n_1total()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         size_t _retval_ = me->total(  );
 
         return _retval_;
@@ -1826,7 +1844,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_n_1type
     static const char method_name[] = "Mat::n_1type()";
     try {
         LOGD(method_name);
-        Mat* me = (Mat*) self; //TODO: check for NULL
+        Mat* me = getMat(self);
         int _retval_ = me->type(  );
 
         return _retval_;
@@ -1923,8 +1941,8 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_nPutD
     static const char method_name[] = "Mat::nPutD()";
     try {
         LOGD(method_name);
-        cv::Mat* me = (cv::Mat*) self;
-        if(!me || !me->data) return 0;  // no native object behind
+        cv::Mat* me = getMat(self);
+        if(!me->data) return 0;  // empty data
         if(me->rows<=row || me->cols<=col) return 0; // indexes out of range
 
         int rest = ((me->rows - row) * me->cols - col) * me->channels();
@@ -2016,8 +2034,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_nPutB
     static const char method_name[] = "Mat::nPutB()";
     try {
         LOGD(method_name);
-        cv::Mat* me = (cv::Mat*) self;
-        if(! self) return 0; // no native object behind
+        cv::Mat* me = getMat(self);
         if(me->depth() != CV_8U && me->depth() != CV_8S) return 0; // incompatible type
         if(me->rows<=row || me->cols<=col) return 0; // indexes out of range
 
@@ -2043,8 +2060,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_nPutS
     static const char method_name[] = "Mat::nPutS()";
     try {
         LOGD(method_name);
-        cv::Mat* me = (cv::Mat*) self;
-        if(! self) return 0; // no native object behind
+        cv::Mat* me = getMat(self);
         if(me->depth() != CV_16U && me->depth() != CV_16S) return 0; // incompatible type
         if(me->rows<=row || me->cols<=col) return 0; // indexes out of range
 
@@ -2070,8 +2086,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_nPutI
     static const char method_name[] = "Mat::nPutI()";
     try {
         LOGD(method_name);
-        cv::Mat* me = (cv::Mat*) self;
-        if(! self) return 0; // no native object behind
+        cv::Mat* me = getMat(self);
         if(me->depth() != CV_32S) return 0; // incompatible type
         if(me->rows<=row || me->cols<=col) return 0; // indexes out of range
 
@@ -2097,8 +2112,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_nPutF
     static const char method_name[] = "Mat::nPutF()";
     try {
         LOGD(method_name);
-        cv::Mat* me = (cv::Mat*) self;
-        if(! self) return 0; // no native object behind
+        cv::Mat* me = getMat(self);
         if(me->depth() != CV_32F) return 0; // incompatible type
         if(me->rows<=row || me->cols<=col) return 0; // indexes out of range
 
@@ -2159,8 +2173,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_nGetB
     static const char method_name[] = "Mat::nGetB()";
     try {
         LOGD(method_name);
-        cv::Mat* me = (cv::Mat*) self;
-        if(! self) return 0; // no native object behind
+        cv::Mat* me = getMat(self);
         if(me->depth() != CV_8U && me->depth() != CV_8S) return 0; // incompatible type
         if(me->rows<=row || me->cols<=col) return 0; // indexes out of range
 
@@ -2186,8 +2199,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_nGetS
     static const char method_name[] = "Mat::nGetS()";
     try {
         LOGD(method_name);
-        cv::Mat* me = (cv::Mat*) self;
-        if(! self) return 0; // no native object behind
+        cv::Mat* me = getMat(self);
         if(me->depth() != CV_16U && me->depth() != CV_16S) return 0; // incompatible type
         if(me->rows<=row || me->cols<=col) return 0; // indexes out of range
 
@@ -2213,8 +2225,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_nGetI
     static const char method_name[] = "Mat::nGetI()";
     try {
         LOGD(method_name);
-        cv::Mat* me = (cv::Mat*) self;
-        if(! self) return 0; // no native object behind
+        cv::Mat* me = getMat(self);
         if(me->depth() != CV_32S) return 0; // incompatible type
         if(me->rows<=row || me->cols<=col) return 0; // indexes out of range
 
@@ -2240,8 +2251,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_nGetF
     static const char method_name[] = "Mat::nGetF()";
     try {
         LOGD(method_name);
-        cv::Mat* me = (cv::Mat*) self;
-        if(! self) return 0; // no native object behind
+        cv::Mat* me = getMat(self);
         if(me->depth() != CV_32F) return 0; // incompatible type
         if(me->rows<=row || me->cols<=col) return 0; // indexes out of range
 
@@ -2267,8 +2277,7 @@ JNIEXPORT jint JNICALL Java_org_opencv_core_Mat_nGetD
     static const char method_name[] = "Mat::nGetD()";
     try {
         LOGD(method_name);
-        cv::Mat* me = (cv::Mat*) self;
-        if(! self) return 0; // no native object behind
+        cv::Mat* me = getMat(self);
         if(me->depth() != CV_64F) return 0; // incompatible type
         if(me->rows<=row || me->cols<=col) return 0; // indexes out of range
 
@@ -2294,8 +2303,7 @@ JNIEXPORT jdoubleArray JNICALL Java_org_opencv_core_Mat_nGet
     static const char method_name[] = "Mat::nGet()";
     try {
         LOGD(method_name);
-        cv::Mat* me = (cv::Mat*) self;
-        if(! self) return 0; // no native object behind
+        cv::Mat* me = getMat(self);
         if(me->rows<=row || me->cols<=col) return 0; // indexes out of range
 
         jdoubleArray res = env->NewDoubleArray(me->channels());
@@ -2332,7 +2340,7 @@ JNIEXPORT jstring JNICALL Java_org_opencv_core_Mat_nDump
     static const char method_name[] = "Mat::nDump()";
     try {
         LOGD(method_name);
-        cv::Mat* me = (cv::Mat*) self; //TODO: check for NULL
+        cv::Mat* me = getMat(self);
         std::stringstream s;
         s << *me;
         std::string str = s.str();
@@ -2346,5 +2354,25 @@ JNIEXPORT jstring JNICALL Java_org_opencv_core_Mat_nDump
     }
 }
 
+
+JNIEXPORT void JNICALL Java_Test_test1(JNIEnv *, jclass);
+JNIEXPORT void JNICALL Java_Test_test1(JNIEnv *env, jclass) {
+  throwJavaException(env);
+  printf("unkown exception\n");
+}
+
+JNIEXPORT void JNICALL Java_Test_test2(JNIEnv *, jclass);
+JNIEXPORT void JNICALL Java_Test_test2(JNIEnv *env, jclass) {
+  std::invalid_argument e("test std::exception");
+  const char *type = throwJavaException(env, e);
+  printf("exception: %s\n", type);
+}
+
+JNIEXPORT void JNICALL Java_Test_test3(JNIEnv *, jclass);
+JNIEXPORT void JNICALL Java_Test_test3(JNIEnv *env, jclass) {
+  cv::Exception e(0, "test cv::Exception", "test3", __FILE__, __LINE__);
+  const char *type = throwJavaException(env, e);
+  printf("exception: %s\n", type);
+}
 
 } // extern "C"

@@ -1,10 +1,11 @@
 package org.opencv.core;
 
+import java.io.Closeable;
 import java.nio.ByteBuffer;
 
 // C++: class Mat
 //javadoc: Mat
-public class Mat implements AutoCloseable {
+public class Mat implements Closeable {
 
     /** Do never ever change this value! */
     public long nativeObj;
@@ -755,24 +756,27 @@ public class Mat implements AutoCloseable {
     /** Not a perfact solution but the best I see. */
     private static final Mat deleteMeNot = new Mat();
 
-    private void delete() {
-        n_delete(nativeObj);
-        nativeObj = deleteMeNot.nativeObj;
+    private boolean isDeleted(boolean throw_if_deleted) {
+        if (nativeObj != deleteMeNot.nativeObj) return false;
+        if (throw_if_deleted) throw new IllegalArgumentException("trying to access deleted object");
+        return true;
     }
 
-    private void deleteCheck() {
-        if (nativeObj == deleteMeNot.nativeObj) throw new IllegalArgumentException("trying to access deleted object");
+    private void delete() {
+        if (!isDeleted(false)) {
+            n_delete(nativeObj);
+            nativeObj = deleteMeNot.nativeObj;
+        }
     }
 
     @Override
     public void close() {
-        deleteCheck();
         delete();
     }
 
     @Override
     protected void finalize() throws Throwable {
-        if (nativeObj != deleteMeNot.nativeObj) delete();
+        delete();
         super.finalize();
     }
 
@@ -1617,7 +1621,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc:Mat::getNativeObjAddr()
     public long getNativeObjAddr() {
-        deleteCheck();
+        isDeleted(true);
         return nativeObj;
     }
 

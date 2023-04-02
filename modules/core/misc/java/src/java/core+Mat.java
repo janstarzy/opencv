@@ -4,9 +4,10 @@ import java.nio.ByteBuffer;
 
 // C++: class Mat
 //javadoc: Mat
-public class Mat {
+public class Mat implements AutoCloseable {
 
-    public final long nativeObj;
+    /** Do never ever change this value! */
+    public long nativeObj;
 
     public Mat(long addr) {
         if (addr == 0)
@@ -751,9 +752,27 @@ public class Mat {
         return new Mat(n_zeros(sizes.length, sizes, type));
     }
 
+    /** Not a perfact solution but the best I see. */
+    private static final Mat deleteMeNot = new Mat();
+
+    private void delete() {
+        n_delete(nativeObj);
+        nativeObj = deleteMeNot.nativeObj;
+    }
+
+    private void deleteCheck() {
+        if (nativeObj == deleteMeNot.nativeObj) throw new IllegalArgumentException("trying to access deleted object");
+    }
+
+    @Override
+    public void close() {
+        deleteCheck();
+        delete();
+    }
+
     @Override
     protected void finalize() throws Throwable {
-        n_delete(nativeObj);
+        if (nativeObj != deleteMeNot.nativeObj) delete();
         super.finalize();
     }
 
@@ -1598,6 +1617,7 @@ public class Mat {
 
     // javadoc:Mat::getNativeObjAddr()
     public long getNativeObjAddr() {
+        deleteCheck();
         return nativeObj;
     }
 

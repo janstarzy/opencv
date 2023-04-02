@@ -102,12 +102,12 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::Mat(m, rowRange, colRange)
     public Mat(Mat m, Range rowRange, Range colRange) {
-        nativeObj = n_Mat(m.nativeObj, rowRange.start, rowRange.end, colRange.start, colRange.end);
+        nativeObj = n_Mat(m.getNativeObjAddr(), rowRange.start, rowRange.end, colRange.start, colRange.end);
     }
 
     // javadoc: Mat::Mat(m, rowRange)
     public Mat(Mat m, Range rowRange) {
-        nativeObj = n_Mat(m.nativeObj, rowRange.start, rowRange.end);
+        nativeObj = n_Mat(m.getNativeObjAddr(), rowRange.start, rowRange.end);
     }
 
     //
@@ -116,7 +116,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::Mat(m, ranges)
     public Mat(Mat m, Range[] ranges) {
-        nativeObj = n_Mat(m.nativeObj, ranges);
+        nativeObj = n_Mat(m.getNativeObjAddr(), ranges);
     }
 
     //
@@ -125,7 +125,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::Mat(m, roi)
     public Mat(Mat m, Rect roi) {
-        nativeObj = n_Mat(m.nativeObj, roi.y, roi.y + roi.height, roi.x, roi.x + roi.width);
+        nativeObj = n_Mat(m.getNativeObjAddr(), roi.y, roi.y + roi.height, roi.x, roi.x + roi.width);
     }
 
     //
@@ -134,7 +134,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::adjustROI(dtop, dbottom, dleft, dright)
     public Mat adjustROI(int dtop, int dbottom, int dleft, int dright) {
-        return new Mat(n_adjustROI(nativeObj, dtop, dbottom, dleft, dright));
+        return new Mat(n_adjustROI(getNativeObjAddr(), dtop, dbottom, dleft, dright));
     }
 
     //
@@ -143,12 +143,12 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::assignTo(m, type)
     public void assignTo(Mat m, int type) {
-        n_assignTo(nativeObj, m.nativeObj, type);
+        n_assignTo(getNativeObjAddr(), m.getNativeObjAddr(), type);
     }
 
     // javadoc: Mat::assignTo(m)
     public void assignTo(Mat m) {
-        n_assignTo(nativeObj, m.nativeObj);
+        n_assignTo(getNativeObjAddr(), m.getNativeObjAddr());
     }
 
     //
@@ -157,7 +157,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::channels()
     public int channels() {
-        return n_channels(nativeObj);
+        return n_channels(getNativeObjAddr());
     }
 
     //
@@ -167,17 +167,17 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::checkVector(elemChannels, depth, requireContinuous)
     public int checkVector(int elemChannels, int depth, boolean requireContinuous) {
-        return n_checkVector(nativeObj, elemChannels, depth, requireContinuous);
+        return n_checkVector(getNativeObjAddr(), elemChannels, depth, requireContinuous);
     }
 
     // javadoc: Mat::checkVector(elemChannels, depth)
     public int checkVector(int elemChannels, int depth) {
-        return n_checkVector(nativeObj, elemChannels, depth);
+        return n_checkVector(getNativeObjAddr(), elemChannels, depth);
     }
 
     // javadoc: Mat::checkVector(elemChannels)
     public int checkVector(int elemChannels) {
-        return n_checkVector(nativeObj, elemChannels);
+        return n_checkVector(getNativeObjAddr(), elemChannels);
     }
 
     //
@@ -186,7 +186,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::clone()
     public Mat clone() {
-        return new Mat(n_clone(nativeObj));
+        return new Mat(n_clone(getNativeObjAddr()));
     }
 
     //
@@ -195,7 +195,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::col(x)
     public Mat col(int x) {
-        return new Mat(n_col(nativeObj, x));
+        return new Mat(n_col(getNativeObjAddr(), x));
     }
 
     //
@@ -204,7 +204,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::colRange(startcol, endcol)
     public Mat colRange(int startcol, int endcol) {
-        return new Mat(n_colRange(nativeObj, startcol, endcol));
+        return new Mat(n_colRange(getNativeObjAddr(), startcol, endcol));
     }
 
     //
@@ -213,7 +213,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::colRange(r)
     public Mat colRange(Range r) {
-        return new Mat(n_colRange(nativeObj, r.start, r.end));
+        return new Mat(n_colRange(getNativeObjAddr(), r.start, r.end));
     }
 
     //
@@ -222,7 +222,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::dims()
     public int dims() {
-        return n_dims(nativeObj);
+        return n_dims(getNativeObjAddr());
     }
 
     //
@@ -231,7 +231,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::cols()
     public int cols() {
-        return n_cols(nativeObj);
+        return n_cols(getNativeObjAddr());
     }
 
     //
@@ -241,17 +241,17 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::convertTo(m, rtype, alpha, beta)
     public void convertTo(Mat m, int rtype, double alpha, double beta) {
-        n_convertTo(nativeObj, m.nativeObj, rtype, alpha, beta);
+        n_convertTo(getNativeObjAddr(), m.getNativeObjAddr(), rtype, alpha, beta);
     }
 
     // javadoc: Mat::convertTo(m, rtype, alpha)
     public void convertTo(Mat m, int rtype, double alpha) {
-        n_convertTo(nativeObj, m.nativeObj, rtype, alpha);
+        n_convertTo(getNativeObjAddr(), m.getNativeObjAddr(), rtype, alpha);
     }
 
     // javadoc: Mat::convertTo(m, rtype)
     public void convertTo(Mat m, int rtype) {
-        n_convertTo(nativeObj, m.nativeObj, rtype);
+        n_convertTo(getNativeObjAddr(), m.getNativeObjAddr(), rtype);
     }
 
     //
@@ -260,7 +260,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::copyTo(m)
     public void copyTo(Mat m) {
-        n_copyTo(nativeObj, m.nativeObj);
+        n_copyTo(getNativeObjAddr(), m.getNativeObjAddr());
     }
 
     //
@@ -269,7 +269,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::copyTo(m, mask)
     public void copyTo(Mat m, Mat mask) {
-        n_copyTo(nativeObj, m.nativeObj, mask.nativeObj);
+        n_copyTo(getNativeObjAddr(), m.getNativeObjAddr(), mask.getNativeObjAddr());
     }
 
     //
@@ -278,7 +278,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::create(rows, cols, type)
     public void create(int rows, int cols, int type) {
-        n_create(nativeObj, rows, cols, type);
+        n_create(getNativeObjAddr(), rows, cols, type);
     }
 
     //
@@ -287,7 +287,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::create(size, type)
     public void create(Size size, int type) {
-        n_create(nativeObj, size.width, size.height, type);
+        n_create(getNativeObjAddr(), size.width, size.height, type);
     }
 
     //
@@ -296,7 +296,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::create(sizes, type)
     public void create(int[] sizes, int type) {
-        n_create(nativeObj, sizes.length, sizes, type);
+        n_create(getNativeObjAddr(), sizes.length, sizes, type);
     }
 
     //
@@ -305,7 +305,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::copySize(m)
     public void copySize(Mat m) {
-        n_copySize(nativeObj, m.nativeObj);
+        n_copySize(getNativeObjAddr(), m.getNativeObjAddr());
     }
 
     //
@@ -314,7 +314,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::cross(m)
     public Mat cross(Mat m) {
-        return new Mat(n_cross(nativeObj, m.nativeObj));
+        return new Mat(n_cross(getNativeObjAddr(), m.getNativeObjAddr()));
     }
 
     //
@@ -323,7 +323,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::dataAddr()
     public long dataAddr() {
-        return n_dataAddr(nativeObj);
+        return n_dataAddr(getNativeObjAddr());
     }
 
     //
@@ -332,7 +332,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::depth()
     public int depth() {
-        return n_depth(nativeObj);
+        return n_depth(getNativeObjAddr());
     }
 
     //
@@ -341,12 +341,12 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::diag(d)
     public Mat diag(int d) {
-        return new Mat(n_diag(nativeObj, d));
+        return new Mat(n_diag(getNativeObjAddr(), d));
     }
 
     // javadoc: Mat::diag()
     public Mat diag() {
-        return new Mat(n_diag(nativeObj, 0));
+        return new Mat(n_diag(getNativeObjAddr(), 0));
     }
 
     //
@@ -355,7 +355,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::diag(d)
     public static Mat diag(Mat d) {
-        return new Mat(n_diag(d.nativeObj));
+        return new Mat(n_diag(d.getNativeObjAddr()));
     }
 
     //
@@ -364,7 +364,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::dot(m)
     public double dot(Mat m) {
-        return n_dot(nativeObj, m.nativeObj);
+        return n_dot(getNativeObjAddr(), m.getNativeObjAddr());
     }
 
     //
@@ -373,7 +373,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::elemSize()
     public long elemSize() {
-        return n_elemSize(nativeObj);
+        return n_elemSize(getNativeObjAddr());
     }
 
     //
@@ -382,7 +382,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::elemSize1()
     public long elemSize1() {
-        return n_elemSize1(nativeObj);
+        return n_elemSize1(getNativeObjAddr());
     }
 
     //
@@ -391,7 +391,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::empty()
     public boolean empty() {
-        return n_empty(nativeObj);
+        return n_empty(getNativeObjAddr());
     }
 
     //
@@ -418,12 +418,12 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::inv(method)
     public Mat inv(int method) {
-        return new Mat(n_inv(nativeObj, method));
+        return new Mat(n_inv(getNativeObjAddr(), method));
     }
 
     // javadoc: Mat::inv()
     public Mat inv() {
-        return new Mat(n_inv(nativeObj));
+        return new Mat(n_inv(getNativeObjAddr()));
     }
 
     //
@@ -432,7 +432,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::isContinuous()
     public boolean isContinuous() {
-        return n_isContinuous(nativeObj);
+        return n_isContinuous(getNativeObjAddr());
     }
 
     //
@@ -441,7 +441,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::isSubmatrix()
     public boolean isSubmatrix() {
-        return n_isSubmatrix(nativeObj);
+        return n_isSubmatrix(getNativeObjAddr());
     }
 
     //
@@ -452,7 +452,7 @@ public class Mat implements AutoCloseable {
     public void locateROI(Size wholeSize, Point ofs) {
         double[] wholeSize_out = new double[2];
         double[] ofs_out = new double[2];
-        locateROI_0(nativeObj, wholeSize_out, ofs_out);
+        locateROI_0(getNativeObjAddr(), wholeSize_out, ofs_out);
         if (wholeSize != null) {
             wholeSize.width = wholeSize_out[0];
             wholeSize.height = wholeSize_out[1];
@@ -473,7 +473,7 @@ public class Mat implements AutoCloseable {
      * @param scale scale factor
      */
     public Mat mul(Mat m, double scale) {
-        return new Mat(n_mul(nativeObj, m.nativeObj, scale));
+        return new Mat(n_mul(getNativeObjAddr(), m.getNativeObjAddr(), scale));
     }
 
     /**
@@ -481,7 +481,7 @@ public class Mat implements AutoCloseable {
     * @param m operand with with which to perform element-wise multiplication
     */
     public Mat mul(Mat m) {
-        return new Mat(n_mul(nativeObj, m.nativeObj));
+        return new Mat(n_mul(getNativeObjAddr(), m.getNativeObjAddr()));
     }
 
     /**
@@ -490,7 +490,7 @@ public class Mat implements AutoCloseable {
     * @see Core#gemm(Mat, Mat, double, Mat, double, Mat, int)
     */
     public Mat matMul(Mat m) {
-        return new Mat(n_matMul(nativeObj, m.nativeObj));
+        return new Mat(n_matMul(getNativeObjAddr(), m.getNativeObjAddr()));
     }
 
     //
@@ -526,7 +526,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::push_back(m)
     public void push_back(Mat m) {
-        n_push_back(nativeObj, m.nativeObj);
+        n_push_back(getNativeObjAddr(), m.getNativeObjAddr());
     }
 
     //
@@ -535,7 +535,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::release()
     public void release() {
-        n_release(nativeObj);
+        n_release(getNativeObjAddr());
     }
 
     //
@@ -544,12 +544,12 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::reshape(cn, rows)
     public Mat reshape(int cn, int rows) {
-        return new Mat(n_reshape(nativeObj, cn, rows));
+        return new Mat(n_reshape(getNativeObjAddr(), cn, rows));
     }
 
     // javadoc: Mat::reshape(cn)
     public Mat reshape(int cn) {
-        return new Mat(n_reshape(nativeObj, cn));
+        return new Mat(n_reshape(getNativeObjAddr(), cn));
     }
 
     //
@@ -558,7 +558,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::reshape(cn, newshape)
     public Mat reshape(int cn, int[] newshape) {
-        return new Mat(n_reshape_1(nativeObj, cn, newshape.length, newshape));
+        return new Mat(n_reshape_1(getNativeObjAddr(), cn, newshape.length, newshape));
     }
 
     //
@@ -567,7 +567,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::row(y)
     public Mat row(int y) {
-        return new Mat(n_row(nativeObj, y));
+        return new Mat(n_row(getNativeObjAddr(), y));
     }
 
     //
@@ -576,7 +576,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::rowRange(startrow, endrow)
     public Mat rowRange(int startrow, int endrow) {
-        return new Mat(n_rowRange(nativeObj, startrow, endrow));
+        return new Mat(n_rowRange(getNativeObjAddr(), startrow, endrow));
     }
 
     //
@@ -585,7 +585,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::rowRange(r)
     public Mat rowRange(Range r) {
-        return new Mat(n_rowRange(nativeObj, r.start, r.end));
+        return new Mat(n_rowRange(getNativeObjAddr(), r.start, r.end));
     }
 
     //
@@ -594,7 +594,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::rows()
     public int rows() {
-        return n_rows(nativeObj);
+        return n_rows(getNativeObjAddr());
     }
 
     //
@@ -603,7 +603,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::operator =(s)
     public Mat setTo(Scalar s) {
-        return new Mat(n_setTo(nativeObj, s.val[0], s.val[1], s.val[2], s.val[3]));
+        return new Mat(n_setTo(getNativeObjAddr(), s.val[0], s.val[1], s.val[2], s.val[3]));
     }
 
     //
@@ -612,7 +612,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::setTo(value, mask)
     public Mat setTo(Scalar value, Mat mask) {
-        return new Mat(n_setTo(nativeObj, value.val[0], value.val[1], value.val[2], value.val[3], mask.nativeObj));
+        return new Mat(n_setTo(getNativeObjAddr(), value.val[0], value.val[1], value.val[2], value.val[3], mask.getNativeObjAddr()));
     }
 
     //
@@ -621,12 +621,12 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::setTo(value, mask)
     public Mat setTo(Mat value, Mat mask) {
-        return new Mat(n_setTo(nativeObj, value.nativeObj, mask.nativeObj));
+        return new Mat(n_setTo(getNativeObjAddr(), value.getNativeObjAddr(), mask.getNativeObjAddr()));
     }
 
     // javadoc: Mat::setTo(value)
     public Mat setTo(Mat value) {
-        return new Mat(n_setTo(nativeObj, value.nativeObj));
+        return new Mat(n_setTo(getNativeObjAddr(), value.getNativeObjAddr()));
     }
 
     //
@@ -635,7 +635,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::size()
     public Size size() {
-        return new Size(n_size(nativeObj));
+        return new Size(n_size(getNativeObjAddr()));
     }
 
     //
@@ -644,7 +644,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::size(int i)
     public int size(int i) {
-        return n_size_i(nativeObj, i);
+        return n_size_i(getNativeObjAddr(), i);
     }
 
     //
@@ -653,12 +653,12 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::step1(i)
     public long step1(int i) {
-        return n_step1(nativeObj, i);
+        return n_step1(getNativeObjAddr(), i);
     }
 
     // javadoc: Mat::step1()
     public long step1() {
-        return n_step1(nativeObj);
+        return n_step1(getNativeObjAddr());
     }
 
     //
@@ -668,7 +668,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::operator()(rowStart, rowEnd, colStart, colEnd)
     public Mat submat(int rowStart, int rowEnd, int colStart, int colEnd) {
-        return new Mat(n_submat_rr(nativeObj, rowStart, rowEnd, colStart, colEnd));
+        return new Mat(n_submat_rr(getNativeObjAddr(), rowStart, rowEnd, colStart, colEnd));
     }
 
     //
@@ -677,7 +677,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::operator()(rowRange, colRange)
     public Mat submat(Range rowRange, Range colRange) {
-        return new Mat(n_submat_rr(nativeObj, rowRange.start, rowRange.end, colRange.start, colRange.end));
+        return new Mat(n_submat_rr(getNativeObjAddr(), rowRange.start, rowRange.end, colRange.start, colRange.end));
     }
 
     //
@@ -686,7 +686,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::operator()(ranges[])
     public Mat submat(Range[] ranges) {
-        return new Mat(n_submat_ranges(nativeObj, ranges));
+        return new Mat(n_submat_ranges(getNativeObjAddr(), ranges));
     }
 
     //
@@ -695,7 +695,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::operator()(roi)
     public Mat submat(Rect roi) {
-        return new Mat(n_submat(nativeObj, roi.x, roi.y, roi.width, roi.height));
+        return new Mat(n_submat(getNativeObjAddr(), roi.x, roi.y, roi.width, roi.height));
     }
 
     //
@@ -704,7 +704,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::t()
     public Mat t() {
-        return new Mat(n_t(nativeObj));
+        return new Mat(n_t(getNativeObjAddr()));
     }
 
     //
@@ -713,7 +713,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::total()
     public long total() {
-        return n_total(nativeObj);
+        return n_total(getNativeObjAddr());
     }
 
     //
@@ -722,7 +722,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::type()
     public int type() {
-        return n_type(nativeObj);
+        return n_type(getNativeObjAddr());
     }
 
     //
@@ -785,14 +785,14 @@ public class Mat implements AutoCloseable {
         }
         return "Mat [ " + _dims + CvType.typeToString(type()) +
                 ", isCont=" + isContinuous() + ", isSubmat=" + isSubmatrix() +
-                ", nativeObj=0x" + Long.toHexString(nativeObj) +
+                ", nativeObj=0x" + Long.toHexString(getNativeObjAddr()) +
                 ", dataAddr=0x" + Long.toHexString(dataAddr()) +
                 " ]";
     }
 
     // javadoc:Mat::dump()
     public String dump() {
-        return nDump(nativeObj);
+        return nDump(getNativeObjAddr());
     }
 
     // javadoc:Mat::put(row,col,data)
@@ -804,7 +804,7 @@ public class Mat implements AutoCloseable {
                             (data == null ? 0 : data.length) +
                             ") should be multiple of the Mat channels count (" +
                             CvType.channels(t) + ")");
-        return nPutD(nativeObj, row, col, data.length, data);
+        return nPutD(getNativeObjAddr(), row, col, data.length, data);
     }
 
     // javadoc:Mat::put(idx,data)
@@ -818,7 +818,7 @@ public class Mat implements AutoCloseable {
                             CvType.channels(t) + ")");
         if (idx.length != dims())
             throw new IllegalArgumentException("Incorrect number of indices");
-        return nPutDIdx(nativeObj, idx, data.length, data);
+        return nPutDIdx(getNativeObjAddr(), idx, data.length, data);
     }
 
     // javadoc:Mat::put(row,col,data)
@@ -831,7 +831,7 @@ public class Mat implements AutoCloseable {
                             ") should be multiple of the Mat channels count (" +
                             CvType.channels(t) + ")");
         if (CvType.depth(t) == CvType.CV_32F) {
-            return nPutF(nativeObj, row, col, data.length, data);
+            return nPutF(getNativeObjAddr(), row, col, data.length, data);
         }
         throw new UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
@@ -848,7 +848,7 @@ public class Mat implements AutoCloseable {
         if (idx.length != dims())
             throw new IllegalArgumentException("Incorrect number of indices");
         if (CvType.depth(t) == CvType.CV_32F) {
-            return nPutFIdx(nativeObj, idx, data.length, data);
+            return nPutFIdx(getNativeObjAddr(), idx, data.length, data);
         }
         throw new UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
@@ -863,7 +863,7 @@ public class Mat implements AutoCloseable {
                             ") should be multiple of the Mat channels count (" +
                             CvType.channels(t) + ")");
         if (CvType.depth(t) == CvType.CV_32S) {
-            return nPutI(nativeObj, row, col, data.length, data);
+            return nPutI(getNativeObjAddr(), row, col, data.length, data);
         }
         throw new UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
@@ -880,7 +880,7 @@ public class Mat implements AutoCloseable {
         if (idx.length != dims())
             throw new IllegalArgumentException("Incorrect number of indices");
         if (CvType.depth(t) == CvType.CV_32S) {
-            return nPutIIdx(nativeObj, idx, data.length, data);
+            return nPutIIdx(getNativeObjAddr(), idx, data.length, data);
         }
         throw new UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
@@ -895,7 +895,7 @@ public class Mat implements AutoCloseable {
                             ") should be multiple of the Mat channels count (" +
                             CvType.channels(t) + ")");
         if (CvType.depth(t) == CvType.CV_16U || CvType.depth(t) == CvType.CV_16S) {
-            return nPutS(nativeObj, row, col, data.length, data);
+            return nPutS(getNativeObjAddr(), row, col, data.length, data);
         }
         throw new UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
@@ -912,7 +912,7 @@ public class Mat implements AutoCloseable {
         if (idx.length != dims())
             throw new IllegalArgumentException("Incorrect number of indices");
         if (CvType.depth(t) == CvType.CV_16U || CvType.depth(t) == CvType.CV_16S) {
-            return nPutSIdx(nativeObj, idx, data.length, data);
+            return nPutSIdx(getNativeObjAddr(), idx, data.length, data);
         }
         throw new UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
@@ -927,7 +927,7 @@ public class Mat implements AutoCloseable {
                             ") should be multiple of the Mat channels count (" +
                             CvType.channels(t) + ")");
         if (CvType.depth(t) == CvType.CV_8U || CvType.depth(t) == CvType.CV_8S) {
-            return nPutB(nativeObj, row, col, data.length, data);
+            return nPutB(getNativeObjAddr(), row, col, data.length, data);
         }
         throw new UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
@@ -944,7 +944,7 @@ public class Mat implements AutoCloseable {
         if (idx.length != dims())
             throw new IllegalArgumentException("Incorrect number of indices");
         if (CvType.depth(t) == CvType.CV_8U || CvType.depth(t) == CvType.CV_8S) {
-            return nPutBIdx(nativeObj, idx, data.length, data);
+            return nPutBIdx(getNativeObjAddr(), idx, data.length, data);
         }
         throw new UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
@@ -959,7 +959,7 @@ public class Mat implements AutoCloseable {
                             ") should be multiple of the Mat channels count (" +
                             CvType.channels(t) + ")");
         if (CvType.depth(t) == CvType.CV_8U || CvType.depth(t) == CvType.CV_8S) {
-            return nPutBwOffset(nativeObj, row, col, length, offset, data);
+            return nPutBwOffset(getNativeObjAddr(), row, col, length, offset, data);
         }
         throw new UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
@@ -976,7 +976,7 @@ public class Mat implements AutoCloseable {
         if (idx.length != dims())
             throw new IllegalArgumentException("Incorrect number of indices");
         if (CvType.depth(t) == CvType.CV_8U || CvType.depth(t) == CvType.CV_8S) {
-            return nPutBwIdxOffset(nativeObj, idx, length, offset, data);
+            return nPutBwIdxOffset(getNativeObjAddr(), idx, length, offset, data);
         }
         throw new UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
@@ -991,7 +991,7 @@ public class Mat implements AutoCloseable {
                             ") should be multiple of the Mat channels count (" +
                             CvType.channels(t) + ")");
         if (CvType.depth(t) == CvType.CV_8U || CvType.depth(t) == CvType.CV_8S) {
-            return nGetB(nativeObj, row, col, data.length, data);
+            return nGetB(getNativeObjAddr(), row, col, data.length, data);
         }
         throw new UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
@@ -1008,7 +1008,7 @@ public class Mat implements AutoCloseable {
         if (idx.length != dims())
             throw new IllegalArgumentException("Incorrect number of indices");
         if (CvType.depth(t) == CvType.CV_8U || CvType.depth(t) == CvType.CV_8S) {
-            return nGetBIdx(nativeObj, idx, data.length, data);
+            return nGetBIdx(getNativeObjAddr(), idx, data.length, data);
         }
         throw new UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
@@ -1023,7 +1023,7 @@ public class Mat implements AutoCloseable {
                             ") should be multiple of the Mat channels count (" +
                             CvType.channels(t) + ")");
         if (CvType.depth(t) == CvType.CV_16U || CvType.depth(t) == CvType.CV_16S) {
-            return nGetS(nativeObj, row, col, data.length, data);
+            return nGetS(getNativeObjAddr(), row, col, data.length, data);
         }
         throw new UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
@@ -1040,7 +1040,7 @@ public class Mat implements AutoCloseable {
         if (idx.length != dims())
             throw new IllegalArgumentException("Incorrect number of indices");
         if (CvType.depth(t) == CvType.CV_16U || CvType.depth(t) == CvType.CV_16S) {
-            return nGetSIdx(nativeObj, idx, data.length, data);
+            return nGetSIdx(getNativeObjAddr(), idx, data.length, data);
         }
         throw new UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
@@ -1055,7 +1055,7 @@ public class Mat implements AutoCloseable {
                             ") should be multiple of the Mat channels count (" +
                             CvType.channels(t) + ")");
         if (CvType.depth(t) == CvType.CV_32S) {
-            return nGetI(nativeObj, row, col, data.length, data);
+            return nGetI(getNativeObjAddr(), row, col, data.length, data);
         }
         throw new UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
@@ -1072,7 +1072,7 @@ public class Mat implements AutoCloseable {
         if (idx.length != dims())
             throw new IllegalArgumentException("Incorrect number of indices");
         if (CvType.depth(t) == CvType.CV_32S) {
-            return nGetIIdx(nativeObj, idx, data.length, data);
+            return nGetIIdx(getNativeObjAddr(), idx, data.length, data);
         }
         throw new UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
@@ -1087,7 +1087,7 @@ public class Mat implements AutoCloseable {
                             ") should be multiple of the Mat channels count (" +
                             CvType.channels(t) + ")");
         if (CvType.depth(t) == CvType.CV_32F) {
-            return nGetF(nativeObj, row, col, data.length, data);
+            return nGetF(getNativeObjAddr(), row, col, data.length, data);
         }
         throw new UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
@@ -1104,7 +1104,7 @@ public class Mat implements AutoCloseable {
         if (idx.length != dims())
             throw new IllegalArgumentException("Incorrect number of indices");
         if (CvType.depth(t) == CvType.CV_32F) {
-            return nGetFIdx(nativeObj, idx, data.length, data);
+            return nGetFIdx(getNativeObjAddr(), idx, data.length, data);
         }
         throw new UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
@@ -1119,7 +1119,7 @@ public class Mat implements AutoCloseable {
                             ") should be multiple of the Mat channels count (" +
                             CvType.channels(t) + ")");
         if (CvType.depth(t) == CvType.CV_64F) {
-            return nGetD(nativeObj, row, col, data.length, data);
+            return nGetD(getNativeObjAddr(), row, col, data.length, data);
         }
         throw new UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
@@ -1136,21 +1136,21 @@ public class Mat implements AutoCloseable {
         if (idx.length != dims())
             throw new IllegalArgumentException("Incorrect number of indices");
         if (CvType.depth(t) == CvType.CV_64F) {
-            return nGetDIdx(nativeObj, idx, data.length, data);
+            return nGetDIdx(getNativeObjAddr(), idx, data.length, data);
         }
         throw new UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
 
     // javadoc:Mat::get(row,col)
     public double[] get(int row, int col) {
-        return nGet(nativeObj, row, col);
+        return nGet(getNativeObjAddr(), row, col);
     }
 
     // javadoc:Mat::get(idx)
     public double[] get(int[] idx) {
         if (idx.length != dims())
             throw new IllegalArgumentException("Incorrect number of indices");
-        return nGetIdx(nativeObj, idx);
+        return nGetIdx(getNativeObjAddr(), idx);
     }
 
     // javadoc:Mat::height()

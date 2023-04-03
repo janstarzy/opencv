@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 
 // C++: class Mat
 //javadoc: Mat
-public class Mat implements Closeable {
+public class Mat implements AutoCloseable {
 
     /** Do never ever change this value! */
     public long nativeObj;
@@ -762,8 +762,8 @@ public class Mat implements Closeable {
         return true;
     }
 
-    private void delete() {
-        if (!isDeleted(false)) {
+    private void delete(boolean throw_if_deleted) {
+        if (!isDeleted(throw_if_deleted)) {
             n_delete(nativeObj);
             nativeObj = deleteMeNot.nativeObj;
         }
@@ -771,12 +771,12 @@ public class Mat implements Closeable {
 
     @Override
     public void close() {
-        delete();
+        delete(true);
     }
 
     @Override
     protected void finalize() throws Throwable {
-        delete();
+        delete(false);
         super.finalize();
     }
 

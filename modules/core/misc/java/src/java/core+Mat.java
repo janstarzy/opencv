@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 
 // C++: class Mat
 //javadoc: Mat
-public class Mat implements AutoCloseable {
+public class Mat implements Closeable {
 
     /** Do never ever change this value! */
     public long nativeObj;
@@ -536,7 +536,7 @@ public class Mat implements AutoCloseable {
 
     // javadoc: Mat::release()
     public void release() {
-        n_release(getNativeObjAddr());
+        if (!isDeleted(false)) n_release(nativeObj);
     }
 
     //

@@ -1171,6 +1171,117 @@ static StringParamTagMap stringParamTagMap {
 };
 #undef PARAM2TAG
 
+static bool isLossless(int compression) {
+    switch (compression)
+    {
+        case COMPRESSION_JP2000:
+        case COMPRESSION_JPEG:
+        case COMPRESSION_OJPEG:
+            return false;
+    }
+    return true;
+}
+
+static bool isBinary(const Mat& img) {
+    if (img.type() != CV_8UC1) return false;
+    for (int y = img.rows - 1; y >= 0; --y) {
+        const uchar* row = img.ptr(y);
+        for (int x = img.cols - 1; x >= 0; --x) {
+            const uchar p = row[x];
+            if (p != 0 && p != 255) return false;
+        }
+    }
+    return true;
+}
+
+static bool setPageOptions(int &bitsPerChannel, uint16 &sampleFormat, int &compression, int &predictor, const Mat& img) {
+    switch (CV_MAT_DEPTH(img.type()))
+    {
+        case CV_8U:
+        {
+            if (isLossless(compression) && isBinary(img)) {
+                bitsPerChannel = 1;
+                predictor = PREDICTOR_NONE;
+            } else {
+                bitsPerChannel = 8;
+            }
+            sampleFormat = SAMPLEFORMAT_UINT;
+            return true;
+        }
+        case CV_8S:
+        {
+            bitsPerChannel = 8;
+            sampleFormat = SAMPLEFORMAT_INT;
+            return true;
+        }
+        case CV_16U:
+        {
+            bitsPerChannel = 16;
+            sampleFormat = SAMPLEFORMAT_UINT;
+            return true;
+        }
+        case CV_16S:
+        {
+            bitsPerChannel = 16;
+            sampleFormat = SAMPLEFORMAT_INT;
+            return true;
+        }
+        case CV_32S:
+        {
+            bitsPerChannel = 32;
+            sampleFormat = SAMPLEFORMAT_INT;
+            return true;
+        }
+        case CV_32F:
+        {
+            bitsPerChannel = 32;
+            sampleFormat = SAMPLEFORMAT_IEEEFP;
+            compression = COMPRESSION_NONE;
+            predictor = PREDICTOR_NONE;
+            return true;
+        }
+        case CV_64F:
+        {
+            bitsPerChannel = 64;
+            sampleFormat = SAMPLEFORMAT_IEEEFP;
+            compression = COMPRESSION_NONE;
+            predictor = PREDICTOR_NONE;
+            return true;
+        }
+    }
+    return false;
+}
+
+// bytes have to be 0xFF
+static void byte2bit(uchar *dst, const uchar *src, int w)
+{
+    int w8 = w & ~7;
+    for (int x = 0; x < w8; x += 8)
+    {
+        uchar a = (0x80 & *src++);
+        a |= (0x40 & *src++);
+        a |= (0x20 & *src++);
+        a |= (0x10 & *src++);
+        a |= (0x08 & *src++);
+        a |= (0x04 & *src++);
+        a |= (0x02 & *src++);
+        a |= (0x01 & *src++);
+        *dst++ = a;
+    }
+
+    if (w != w8)
+    {
+        uchar a = 0;
+        uchar m = 0x80;
+        for (int x = w8; x < w; ++x)
+        {
+            a |= (m & *src++);
+            m >>= 1;
+        }
+        *dst++ = a;
+    }
+}
+
 bool TiffEncoder::writeLibTiff( const std::vector<Mat>& img_vec, const std::vector<int>& params, const std::map<int, String>& sparams)
 {
     // do NOT put "wb" as the mode, because the b means "big endian" mode, not "binary" mode.
@@ -1197,6 +1308,7 @@ bool TiffEncoder::writeLibTiff( const std::vector<Mat>& img_vec, const std::vect
     //Settings that matter to all images
     int compression = COMPRESSION_LZW;
     int predictor = PREDICTOR_HORIZONTAL;
+    int jpegQuality = 95;
     int resUnit = -1, dpiX = -1, dpiY = -1;
     int page1 = -1, page2 = 0;
 
@@ -1209,7 +1321,18 @@ bool TiffEncoder::writeLibTiff( const std::vector<Mat>& img_vec, const std::vect
     }
 
     readParam(params, IMWRITE_TIFF_COMPRESSION, compression);
+    switch (compression)
+    {
+        case COMPRESSION_ADOBE_DEFLATE:
+        case COMPRESSION_DEFLATE:
+        case COMPRESSION_LZW:
+          break;
+        default:
+          predictor = PREDICTOR_NONE;
+    }
+
     readParam(params, IMWRITE_TIFF_PREDICTOR, predictor);
+    readParam(params, IMWRITE_JPEG_QUALITY, jpegQuality);
     readParam(params, IMWRITE_TIFF_RESUNIT, resUnit);
     readParam(params, IMWRITE_TIFF_XDPI, dpiX);
     readParam(params, IMWRITE_TIFF_YDPI, dpiY);
@@ -1246,50 +1369,10 @@ bool TiffEncoder::writeLibTiff( const std::vector<Mat>& img_vec, const std::vect
         }
 
         int page_compression = compression;
-
+        int page_predictor = predictor;
         int bitsPerChannel = -1;
-        uint16 sample_format = SAMPLEFORMAT_INT;
-        switch (depth)
-        {
-            case CV_8U:
-                sample_format = SAMPLEFORMAT_UINT;
-                /* FALLTHRU */
-            case CV_8S:
-            {
-                bitsPerChannel = 8;
-                break;
-            }
-
-            case CV_16U:
-                sample_format = SAMPLEFORMAT_UINT;
-                /* FALLTHRU */
-            case CV_16S:
-            {
-                bitsPerChannel = 16;
-                break;
-            }
-
-            case CV_32F:
-                sample_format = SAMPLEFORMAT_IEEEFP;
-                /* FALLTHRU */
-            case CV_32S:
-            {
-                bitsPerChannel = 32;
-                page_compression = COMPRESSION_NONE;
-                break;
-            }
-            case CV_64F:
-            {
-                bitsPerChannel = 64;
-                page_compression = COMPRESSION_NONE;
-                sample_format = SAMPLEFORMAT_IEEEFP;
-                break;
-            }
-            default:
-            {
-                return false;
-            }
-        }
+        uint16 sample_format = -1;
+        if (!setPageOptions(bitsPerChannel, sample_format, page_compression, page_predictor, img)) return false;
 
         const int bitsPerByte = 8;
         size_t fileStep = (width * channels * bitsPerChannel) / bitsPerByte;
@@ -1298,6 +1381,7 @@ bool TiffEncoder::writeLibTiff( const std::vector<Mat>& img_vec, const std::vect
         int rowsPerStrip = (int)((1 << 13) / fileStep);
         readParam(params, IMWRITE_TIFF_ROWSPERSTRIP, rowsPerStrip);
         rowsPerStrip = std::max(1, std::min(height, rowsPerStrip));
+        if (page_compression == COMPRESSION_JPEG) rowsPerStrip = std::max(8, rowsPerStrip & ~7);
 
         int colorspace = channels > 1 ? PHOTOMETRIC_RGB : PHOTOMETRIC_MINISBLACK;
 
@@ -1310,9 +1394,14 @@ bool TiffEncoder::writeLibTiff( const std::vector<Mat>& img_vec, const std::vect
 
         CV_TIFF_CHECK_CALL(TIFFSetField(tif, TIFFTAG_SAMPLEFORMAT, sample_format));
 
-        if (page_compression != COMPRESSION_NONE && predictor != PREDICTOR_NONE)
+        if (page_compression != COMPRESSION_NONE && page_predictor != PREDICTOR_NONE)
         {
-            CV_TIFF_CHECK_CALL(TIFFSetField(tif, TIFFTAG_PREDICTOR, predictor));
+            CV_TIFF_CHECK_CALL(TIFFSetField(tif, TIFFTAG_PREDICTOR, page_predictor));
+        }
+
+        if (page_compression == COMPRESSION_JPEG)
+        {
+            CV_TIFF_CHECK_CALL(TIFFSetField(tif, TIFFTAG_JPEGQUALITY, jpegQuality));
         }
 
         if (resUnit >= RESUNIT_NONE && resUnit <= RESUNIT_CENTIMETER)
@@ -1340,9 +1429,9 @@ bool TiffEncoder::writeLibTiff( const std::vector<Mat>& img_vec, const std::vect
 
         // row buffer, because TIFFWriteScanline modifies the original data!
         size_t scanlineSize = TIFFScanlineSize(tif);
-        AutoBuffer<uchar> _buffer(scanlineSize + 32);
+        AutoBuffer<uchar> _buffer(std::max((size_t)width, scanlineSize) + 32);
         uchar* buffer = _buffer.data(); CV_DbgAssert(buffer);
-        Mat m_buffer(Size(width, 1), CV_MAKETYPE(depth, channels), buffer, (size_t)scanlineSize);
+        Mat m_buffer(Size(width, 1), CV_MAKETYPE(depth, channels), buffer);
 
         for (int y = 0; y < height; ++y)
         {
@@ -1350,7 +1439,8 @@ bool TiffEncoder::writeLibTiff( const std::vector<Mat>& img_vec, const std::vect
             {
                 case 1:
                 {
-                    memcpy(buffer, img.ptr(y), scanlineSize);
+                    if (bitsPerChannel == 1) byte2bit(buffer, img.ptr(y), img.cols);
+                    else memcpy(buffer, img.ptr(y), scanlineSize);
                     break;
                 }
 

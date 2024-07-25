@@ -363,6 +363,37 @@ static void exifTransform(int orientation, Mat &img)
     }
 }
 
+static bool hasResolution(const std::map<String, String> &p, const std::string &key) {
+  const std::map<String, String>::const_iterator found = p.find(key);
+  return found != p.end() && found->second != "-1";
+}
+
+static void setResolution(std::map<String, String> &p, Ptr <BaseImageDecoder> decoder, const std::string &key, ExifTagName tag) {
+  if (!hasResolution(p, key)) {
+    ExifEntry_t entry = decoder->getExifTag(tag);
+    ExifEntry_t unit = decoder->getExifTag(RESOLUTION_UNIT);
+    if (entry.tag != INVALID_TAG && unit.tag != INVALID_TAG) {
+      std::vector<u_rational_t> res = entry.field_u_rational;
+      if (res.size() == 1) {
+        const u_rational_t &rational = res[0];
+        double r = (double)rational.first / rational.second;
+        switch(unit.field_u16) {
+          case 1:
+            p[key] = BaseImageDecoder::toString(-r);
+            break;
+          case 2:
+            // now senseless default values from the old times
+            if (r != 72 && r != 96) p[key] = BaseImageDecoder::toString(r);
+            break;
+          case 3:
+            p[key] = BaseImageDecoder::toString(2.54 * r);
+            break;
+        }
+      }
+    }
+  }
+}
+
 template <class T> static void setProperty(std::map<String, String> &p, Ptr <BaseImageDecoder> decoder, const ExifTagName tag, const String &tag_str, T ExifEntry_t::* field) {
     ExifEntry_t entry = decoder->getExifTag(tag);
     if (entry.tag != INVALID_TAG) {
@@ -386,6 +417,8 @@ static void applyExif(Ptr <BaseImageDecoder> decoder, Mat &img, bool rotate, std
 #define IMAGEDESCRIPTION IMAGE_DESCRIPTION
 #define DATETIME DATE_TIME
         std::map<String, String> &p = *properties;
+        setResolution(p, decoder, BaseImageDecoder::dpi_x, XRESOLUTION);
+        setResolution(p, decoder, BaseImageDecoder::dpi_y, YRESOLUTION);
         setProperty(p, decoder, DOCUMENTNAME, &ExifEntry_t::field_str);
         setProperty(p, decoder, IMAGEDESCRIPTION, &ExifEntry_t::field_str);
         setProperty(p, decoder, MAKE, &ExifEntry_t::field_str);

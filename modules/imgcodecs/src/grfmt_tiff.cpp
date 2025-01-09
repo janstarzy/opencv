@@ -352,7 +352,8 @@ template<class K, class V> bool contains(const std::map<K, V> &m, const K &k) {
 }
 
 static void setRes(const String &name, const String &res, const String &unit, std::map<String, String> &p){
-    if(contains(p, res) && contains(p, unit)) {
+    if(contains(p, res)) {
+        if(!contains(p, unit)) p[unit] = BaseImageDecoder::toString(RESUNIT_INCH);
         const String &r_str = p[res];
         const String &u_str = p[unit];
         double r = BaseImageDecoder::fromString<double>(r_str);
@@ -420,12 +421,8 @@ bool TiffDecoder::readHeader(std::map<String, String> *properties)
 
         {
             bool isGrayScale = photometric == PHOTOMETRIC_MINISWHITE || photometric == PHOTOMETRIC_MINISBLACK;
-            uint16 bpp = 8, ncn = isGrayScale ? 1 : 3;
-            if (0 == TIFFGetField(tif, TIFFTAG_BITSPERSAMPLE, &bpp))
-            {
-                // TIFF bi-level images don't require TIFFTAG_BITSPERSAMPLE tag
-                bpp = 1;
-            }
+            uint16 bpp = 1, ncn = isGrayScale ? 1 : 3;
+            CV_TIFF_CHECK_CALL_DEBUG(TIFFGetField(tif, TIFFTAG_BITSPERSAMPLE, &bpp));
             CV_TIFF_CHECK_CALL_DEBUG(TIFFGetField(tif, TIFFTAG_SAMPLESPERPIXEL, &ncn));
 
             m_width = wdth;
@@ -762,12 +759,8 @@ bool  TiffDecoder::readData( Mat& img, std::map<String, String> *properties)
     {
         int is_tiled = TIFFIsTiled(tif) != 0;
         bool isGrayScale = photometric == PHOTOMETRIC_MINISWHITE || photometric == PHOTOMETRIC_MINISBLACK;
-        uint16 bpp = 8, ncn = isGrayScale ? 1 : 3;
-        if (0 == TIFFGetField(tif, TIFFTAG_BITSPERSAMPLE, &bpp))
-        {
-            // TIFF bi-level images don't require TIFFTAG_BITSPERSAMPLE tag
-            bpp = 1;
-        }
+        uint16 bpp = 1, ncn = isGrayScale ? 1 : 3;
+        CV_TIFF_CHECK_CALL_DEBUG(TIFFGetField(tif, TIFFTAG_BITSPERSAMPLE, &bpp));
         CV_TIFF_CHECK_CALL_DEBUG(TIFFGetField(tif, TIFFTAG_SAMPLESPERPIXEL, &ncn));
         uint16 img_orientation = ORIENTATION_TOPLEFT;
         CV_TIFF_CHECK_CALL_DEBUG(TIFFGetField(tif, TIFFTAG_ORIENTATION, &img_orientation));
